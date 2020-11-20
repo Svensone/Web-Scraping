@@ -16,3 +16,6 @@ https://pendataan.baliprov.go.id/map_covid19/search?_token=4oZ4S1KfWBPVipGwcwmoE
 -
 
 https://pendataan.baliprov.go.id/
+
+
+- best with tables "https://infocorona.baliprov.go.id/",
