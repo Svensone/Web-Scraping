@@ -62,9 +62,14 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'wikiSpider.pipelines.WikispiderPipeline': 300,
-#}
+
+## Ch. 5 Part 4: Creating a Pipeline
+##############
+
+# even though scrapy is single-threaded can handle and manage requests asynchronously (while processing data next request for example)
+ITEM_PIPELINES = {
+   'wikiSpider.pipelines.WikispiderPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

@@ -3,7 +3,7 @@
 
 # extending CrawlSpider class obj. / adding Rule(LinkExtractor) / .xpath('//div[@id="..."]//text).extract() /
 
-## different in new Scrapy Version
+## different in new Scrapy Version - no '.contrib'
 from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 
