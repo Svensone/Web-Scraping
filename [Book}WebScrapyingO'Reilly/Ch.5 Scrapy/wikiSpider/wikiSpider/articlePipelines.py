@@ -7,8 +7,6 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from items import Article
 
-
-
 class ArticleSpider(CrawlSpider):
 
     name = 'articlePipelines'
@@ -30,7 +28,6 @@ class ArticleSpider(CrawlSpider):
         article['title'] = response.css('h1::text').extract_first()
         article['text'] = response.xpath('//div[@id="mw-content-text"]//text').extract()
         lastUpdated = response.css('li#footer-info-lastmod::text').extract_first()
-        article['lastUpdated'] = lastUpdated.replace('This page was last edited on ', '')
 
         return article
 
