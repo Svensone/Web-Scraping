@@ -1,20 +1,28 @@
 import scrapy
-import csv
 
 class BaliSpider(scrapy.Spider):
 
     name = 'bali'
-
-    start_urls = [
-        # 'https://pendataan.baliprov.go.id/',
-        "https://infocorona.baliprov.go.id/",
+    def start_requests(self):
+        urls =[
+        "https://infocorona.baliprov.go.id/API/pendataan/laporan-harian-01.php",
         ]
+        for url in urls:
+            yield scrapy.Request(url=url, callback=self.parse_items)
 
-    def parse(self, response):
+    def parse_items(self, response):
 
+        url = response.url
+        date = response.css('div#alert alert-info::text').get()
+        dailyData = response.xpath('//div[@class=table-responsive text-centered]//text').getall()
 
-## Refactor ###
-#####################
+        print("url is {}".format(url))
+        print('date is {}'.format(date))
+        
+        # data = CovidData()
+        # data['url'] = response.url
+        # data['date'] = response.css('div#alert alert-info::text').extract_first()
+        # data['dailyData'] = response.xpath('//div[@class=table-responsive text-centered]//text').extract()
 
 # from scrapy.spider import Spider
 # from scrapy.http import Request

@@ -6,7 +6,10 @@
 import scrapy
 
 
-class CovidbaliItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
+class CovidData(scrapy.Item):
+    
+    url = scrapy.Field()
+    date = scrapy.Field()
+    dailyData = scrapy.Field()
+    
     pass
