@@ -1,0 +1,33 @@
+[
+{
+    "url": "pendataan.baliprov.go.id", 
+    "date": "Data Penyebaran Covid-19 Di BALI Sampai Dengan 2020-11-03", 
+    "headers": [" JEMBRANA", " TABANAN", " BADUNG", " DENPASAR", " GIANYAR", 
+        " BANGLI", " KLUNGKUNG", " KARANGASEM", " BULELENG", " KABUPATEN LAINNYA", " WARGA NEGARA ASING", " PROVINSI BALI"], 
+        "positives_Province": [
+            ["\n                            ", "\n                          "], 
+            ["\n                            ", "\n                          "], 
+            ["\n                                ", "\n                              "], 
+            ["PPLN WNA: 0"], ["PPLN WNI: 26"], ["PPDN: 12"], ["Transmisi Lokal : 423"], ["Positif Lainnya : 0"], ["Total Positif : 461"], 
+            [], [], [], [], 
+            ["\n                            ", "\n                          "], 
+            ["\n                            ", "\n                          "], 
+            ["\n                                ", "\n                              "], 
+            ["PPLN WNA: 0"], ["PPLN WNI: 21"], ["PPDN: 8"], ["Transmisi Lokal : 800"], ["Positif Lainnya : 0"], ["Total Positif : 829"],
+            [], [], [], [], 
+            ["\n                            ", "\n                          "], 
+            ["\n                            ", "\n                          "], 
+            ["\n                                ", "\n                              "], 
+            ["PPLN WNA: 0"], ["PPLN WNI: 27"], ["PPDN: 3"], ["Transmisi Lokal : 2023"], ["Positif Lainnya : 0"], ["Total Positif : 2053"], 
+            [], [], [], [], 
+            ["\n                            ", "\n                          "], 
+            ["\n                            ", "\n                          "], 
+            ["\n                                ", "\n                              "], 
+            ["PPLN WNA: 0"], ["PPLN WNI: 48"], ["PPDN: 20"], ["Transmisi Lokal : 3209"], ["Positif Lainnya : 0"], ["Total Positif : 3277"], 
+            [], [], [], [], 
+            ["\n                            ", "\n                          "], 
+            ["\n                            ", "\n                          "], 
+            ["\n                                ", "\n                              "], 
+            ["PPLN WNA: 0"], ["PPLN WNI: 29"], ["PPDN: 12"], ["Transmisi Lokal : 1462"], ["Positif Lainnya : 0"], ["Total Positif : 1503"], 
+            [], [], [], [], ["\n                            ", "\n                          "], ["\n                            ", "\n                          "], ["\n                                ", "\n                              "], ["PPLN WNA: 0"], ["PPLN WNI: 58"], ["PPDN: 3"], ["Transmisi Lokal : 776"], ["Positif Lainnya : 0"], ["Total Positif : 837"], [], [], [], [], ["\n                            ", "\n                          "], ["\n                            ", "\n                          "], ["\n                                ", "\n                              "], ["PPLN WNA: 0"], ["PPLN WNI: 19"], ["PPDN: 0"], ["Transmisi Lokal : 848"], ["Positif Lainnya : 0"], ["Total Positif : 867"], [], [], [], [], ["\n                            ", "\n                          "], ["\n                            ", "\n                          "], ["\n                                ", "\n                              "], ["PPLN WNA: 0"], ["PPLN WNI: 23"], ["PPDN: 0"], ["Transmisi Lokal : 904"], ["Positif Lainnya : 0"], ["Total Positif : 927"], [], [], [], [], ["\n                            ", "\n                          "], ["\n                            ", "\n                          "], ["\n                                ", "\n                              "], ["PPLN WNA: 0"], ["PPLN WNI: 41"], ["PPDN: 6"], ["Transmisi Lokal : 1037"], ["Positif Lainnya : 0"], ["Total Positif : 1084"], [], [], [], [], ["\n                            ", "\n                          "], ["\n                            ", "\n                          "], ["\n                                ", "\n                              "], ["PPLN WNA: 0"], ["PPLN WNI: 5"], ["PPDN: 30"], ["Transmisi Lokal : 4"], ["Positif Lainnya : 0"], ["Total Positif : 39"], [], [], [], [], ["\n                            ", "\n                          "], ["\n                            ", "\n                          "], ["\n                                ", "\n                              "], ["PPLN WNA: 8"], ["PPLN WNI: 0"], ["PPDN: 2"], ["Transmisi Lokal : 19"], ["Positif Lainnya : 0"], ["Total Positif : 29"], [], [], [], [], [], ["\n                              ", "\n                            "], ["\n                                  ", "\n                                "], ["PPLN WNA: 8"], ["PPLN WNI: 297"], ["PPDN: 96"], ["Transmisi Lokal : 11505"], ["Positif Lainnya : 0"], ["Total Positif : 11906"], [], [], []]}
+]
