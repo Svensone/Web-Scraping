@@ -1,6 +1,5 @@
 import scrapy
 
-
 ## scrapying daily data from Bali Province with API
 
 class BaliSpider(scrapy.Spider):
