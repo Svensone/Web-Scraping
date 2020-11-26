@@ -1,5 +1,6 @@
 import scrapy
 
+## unlike pendataan Bali - this one provides new cases on yesterday
 ## scrapying daily data from Bali Province with API
 
 class BaliSpider(scrapy.Spider):
@@ -21,6 +22,6 @@ class BaliSpider(scrapy.Spider):
         update_date = response.css('div.alert::text')[1].get()
 
         yield {
-            'data': data,
             'update_date': update_date,
+            'data': data,
             }

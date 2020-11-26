@@ -1,10 +1,12 @@
 import scrapy
 from scrapy.item import Item, Field
 from scrapy.linkextractors import LinkExtractor
-from datetime import timedelta, date
 from scrapy.spiders import Rule
-# created normal in items.py
 
+from datetime import timedelta, date
+
+
+# created normal in items.py
 class BaliItem(Item):
     title = Field()
     dateCases = Field()
@@ -12,7 +14,6 @@ class BaliItem(Item):
 
 
 class MultiDateSpider(scrapy.Spider):
-
     name = 'bali4'
 
     allowed_domains = ["pendataan.baliprov.go.id"]
