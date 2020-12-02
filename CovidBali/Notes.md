@@ -20,10 +20,14 @@ Notes Miscs:
 
 1. Matplotlib and Geopandas
 2. Plotly
+3. Dash Web App
 
 integrate Dash ?
 - https://dash.plotly.com/
 
+Choropleth plotly express not working in dash. test in colab ?
+running px.Choropleth in VS Code as .ipynb super slow and runtime error / timeout
+    - maybe colab ?
 # Data Scources
 
 https://pendataan.baliprov.go.id/map_covid19/search?_token=4oZ4S1KfWBPVipGwcwmoEZKkifzDHR2RuNYUOudC&level=kabupaten&kabupaten=&tanggal=2020-11-12
