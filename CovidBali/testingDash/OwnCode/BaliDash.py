@@ -7,12 +7,12 @@
 
 
 import pandas as pd
-import plotly.express as px  # (version 4.7.0)
+import plotly.express as px  
 
 import json
 import numpy as np
 
-import dash  # (version 1.12.0) pip install dash
+import dash  
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
@@ -30,17 +30,17 @@ app = dash.Dash(__name__)
 # Import and clean data (importing csv into pandas)
 
 ##. 1 GeoJSON
-indo_states = json.load(open('indo_geo.json', 'r'))
+path_geojson = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingPlotlyIndoStates\indo_level1_id.geojson'
+indo_states = json.load(open(path_geojson, 'r'))
 
 indo_states_map = {}
 
 for state in indo_states['features']:
-    state['id'] = state['properties']["ADM1_PCODE"]
     indo_states_map[state['properties']['ADM1_EN']] = state['id']
 
 ## 2. get covid data on province level
-
-df = pd.read_csv('indo-cases.csv')
+path_csv = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\OwnCode\indo-cases.csv'
+df = pd.read_csv(path_csv)
 df.head()
 
 ## adjust names in df to match names in indo_states_map
@@ -50,7 +50,7 @@ df = df.replace("DKI Jakarta", 'Dki Jakarta')
 ## drop row 'Indonesia' 
 df = df.drop(index=34)
 ## add column id with 'ids' from indo-state-map list
-df['ADM1_PCODE'] = df['Provinsi'].apply(lambda x: indo_states_map[x])
+df['id'] = df['Provinsi'].apply(lambda x: indo_states_map[x])
 
 # ------------------------------------------------------------------------------
 ## 2. App Layout
@@ -101,28 +101,13 @@ def update_graph(option_selected):
     # px Choropleth figure with Input and px.choropleth
     ## Option 1 : using featureidkey
 
-    # fig = px.choropleth(df, 
-    #     geojson=indo_states, 
-    #     color="Kasus_Posi",
-    #     locations="ADM1_PCODE", 
-    #     featureidkey="properties.ADM1_PCODE",
-    #     title = option_selected
-    #     # projection="mercator"
-    # )
-    # fig.update_geos(fitbounds="locations", visible=False)
-    # fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
-    
-    fig = px.choropleth_mapbox(df, geojson=indo_states, 
-color= 'Kasus_Meni', locations='ADM1_PCODE', featureidkey='properties.ADM1_PCODE',
-hover_name= 'Provinsi', hover_data=['Kasus_Posi', 'Kasus_Meni'], 
-title='Covid Cases in Indonesia per Province',
-mapbox_style = 'carto-positron',
-zoom = 3,
-opacity=0.5,)
+    fig = px.choropleth(df, geojson=indo_states, color="Kasus_Posi",
+                    locations="id",
+                    projection="mercator"
+                   )
+    fig.update_geos(fitbounds="locations", visible=False)
+    fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
-    fig.update_geos(lataxis_showgrid=True, lonaxis_showgrid= True, # shows longitude and latitude lines
-fitbounds = 'locations', visible = False # set center of fig to locations of geojson and all other physical attribute(like lakes, rivers etc. to not-visible)
-)
     return container, fig
 
 # ------------------------------------------------------------------------------
