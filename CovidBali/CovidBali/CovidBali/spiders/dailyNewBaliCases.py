@@ -23,5 +23,6 @@ class BaliSpider(scrapy.Spider):
 
         yield {
             'update_date': update_date,
+            'date': update_date[-14:-3],
             'data': data,
             }
