@@ -11,7 +11,7 @@ class BaliItem(Item):
     title = Field()
     dateCases = Field()
     provinces = Field()
-
+    meninggal = Field()
 
 class MultiDateSpider(scrapy.Spider):
     name = 'bali4'
@@ -40,6 +40,11 @@ class MultiDateSpider(scrapy.Spider):
 
         ## crunch the data!!!
         table = response.xpath('/html/body/div/div/div/div/div[2]/div/div/div[2]/div/div[1]/ul')
+        
         item['provinces'] = table.xpath('//h4/text()').extract()
+
+        ## get all data directly with full xpath
+        # like 
+        item['meninggal'] = response.xpath('/html/body/div/div/div/div/div[2]/div/div/div[2]/div/div[1]/ul/li[2]/ul/li[3]/p/text()')
 
         return item

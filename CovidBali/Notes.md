@@ -1,14 +1,14 @@
 
 # Covid Data Project
 
-Goal:
+## Goal:
 
 - create web app with daily numbers and choropleth Bali
 - scrape data with scrapy / BeautifulSoup
 - use Dash
 - help Jackie in Facebook Group 'Bali Covid 19 update'
 
-Notes Miscs:
+## Notes Miscs:
 
 2020.11.16: Beginning
 2020-11-27: Struggling with Git

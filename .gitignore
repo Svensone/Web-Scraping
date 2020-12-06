@@ -6,3 +6,6 @@ CovidBali/Data/
 
 CovidBali/testingPlotlyIndoStates/indoplotly.ipynb
 CovidBali/testingDash/__pycache__/test.cpython-37.pyc
+CovidBali/CovidBali/CovidBali/dailyCases.json
+CovidBali/CovidBali/CovidBali/spiders/__pycache__/dailyNewBaliCases.cpython-37.pyc
+CovidBali/CovidBali/CovidBali/spiders/__pycache__/oldBaliCases.cpython-37.pyc
