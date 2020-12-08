@@ -351,13 +351,14 @@ def update_graph_4(n_clicks, dropdown_value, range_slider_value, check_list_valu
     
     fig = px.choropleth_mapbox(df_bali, geojson= geojson_bali, locations='id', color='log10 total cases',
     mapbox_style= 'carto-positron', hover_name= 'Regency', hover_data=['new cases total', 'total cases'],
-                    title='Covid Cases in Bali per Regency', zoom=8, center = {"lat": -8.2902, "lon": 114.8129},
-                    opacity=0.5,)
+                    title='Covid Cases in Bali per Regency', zoom=7,
+                    opacity=0.5, center = {"lat": -8.2902, "lon": 114.8129})
+                    #  
     # df = px.data.gapminder().query('year==2007')
     # fig = px.scatter_geo(df, locations='iso_alpha', color='continent',
                         #  hover_name='country', size='pop', projection='natural earth')
     
-    
+
     fig.update_layout({
         'height': 600
     })
