@@ -14,7 +14,7 @@ class BaliItem(Item):
     meninggal = Field()
 
 class MultiDateSpider(scrapy.Spider):
-    name = 'bali4'
+    name = 'baliOld'
 
     allowed_domains = ["pendataan.baliprov.go.id"]
 

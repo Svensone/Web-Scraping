@@ -10,10 +10,14 @@
 
 ## Notes Miscs:
 
-2020.11.16: Beginning
+2020-12-09:
+- scrapy crawl 'name of spider' -o 'filename' -t json for appending
+
 2020-11-27: Struggling with Git
 - need Extensions for geojson, ipykernel not working from VS Code - update conda 4.9 no permission from integrated terminal - use conda command admin rights
 - choropleth plotly geojson tricky
+
+2020.11.16: Beginning
 
 
 # Visualization:
@@ -28,6 +32,8 @@ integrate Dash ?
 Choropleth plotly express not working in dash. test in colab ?
 running px.Choropleth in VS Code as .ipynb super slow and runtime error / timeout
     - maybe colab ?
+
+
 # Data Scources
 
 https://pendataan.baliprov.go.id/map_covid19/search?_token=4oZ4S1KfWBPVipGwcwmoEZKkifzDHR2RuNYUOudC&level=kabupaten&kabupaten=&tanggal=2020-11-12
