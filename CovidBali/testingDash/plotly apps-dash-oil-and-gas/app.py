@@ -7,6 +7,9 @@ import dash
 import math
 import datetime as dt
 import pandas as pd
+import json
+import plotly.express as px
+
 from dash.dependencies import Input, Output, State, ClientsideFunction
 import dash_core_components as dcc
 import dash_html_components as html
@@ -41,24 +44,24 @@ well_type_options = [
 
 
 # Download pickle file
-urllib.request.urlretrieve(
-    "https://raw.githubusercontent.com/plotly/datasets/master/dash-sample-apps/dash-oil-and-gas/data/points.pkl",
-    DATA_PATH.joinpath("points.pkl"),
-)
-points = pickle.load(open(DATA_PATH.joinpath("points.pkl"), "rb"))
+# urllib.request.urlretrieve(
+#     "https://raw.githubusercontent.com/plotly/datasets/master/dash-sample-apps/dash-oil-and-gas/data/points.pkl",
+#     DATA_PATH.joinpath("points.pkl"),
+# )
+# points = pickle.load(open(DATA_PATH.joinpath("points.pkl"), "rb"))
 
 
 # Load data
-df = pd.read_csv(
-    "https://github.com/plotly/datasets/raw/master/dash-sample-apps/dash-oil-and-gas/data/wellspublic.csv",
-    low_memory=False,
-)
-df["Date_Well_Completed"] = pd.to_datetime(df["Date_Well_Completed"])
-df = df[df["Date_Well_Completed"] > dt.datetime(1960, 1, 1)]
+# df = pd.read_csv(
+#     "https://github.com/plotly/datasets/raw/master/dash-sample-apps/dash-oil-and-gas/data/wellspublic.csv",
+#     low_memory=False,
+# )
+# df["Date_Well_Completed"] = pd.to_datetime(df["Date_Well_Completed"])
+# df = df[df["Date_Well_Completed"] > dt.datetime(1960, 1, 1)]
 
-trim = df[["API_WellNo", "Well_Type", "Well_Name"]]
-trim.index = trim["API_WellNo"]
-dataset = trim.to_dict(orient="index")
+# trim = df[["API_WellNo", "Well_Type", "Well_Name"]]
+# trim.index = trim["API_WellNo"]
+# dataset = trim.to_dict(orient="index")
 
 
 # Create global chart template
@@ -92,10 +95,10 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.Img(
-                            src=app.get_asset_url("dash-logo.png"),
+                            src=app.get_asset_url("Barong-Mask.png"),
                             id="plotly-image",
                             style={
-                                "height": "60px",
+                                "height": "100px",
                                 "width": "auto",
                                 "margin-bottom": "25px",
                             },
@@ -108,11 +111,11 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.H3(
-                                    "New York Oil and Gas",
+                                    "Covid Cases",
                                     style={"margin-bottom": "0px"},
                                 ),
                                 html.H5(
-                                    "Production Overview", style={"margin-top": "0px"}
+                                    "Cases in Bali per Regency", style={"margin-top": "0px"}
                                 ),
                             ]
                         )
@@ -123,8 +126,8 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.A(
-                            html.Button("Learn More", id="learn-more-button"),
-                            href="https://plot.ly/dash/pricing/",
+                            html.Button("About Me", id="learn-more-button"),
+                            href="https://5cac0a0b7a48d9000a0e3c77--portfolio-gatsby-bali.netlify.app/",
                         )
                     ],
                     className="one-third column",
@@ -245,7 +248,15 @@ app.layout = html.Div(
                     className="pretty_container seven columns",
                 ),
                 html.Div(
-                    [dcc.Graph(id="individual_graph")],
+                    [
+                        # dcc.Graph(id="individual_graph")
+                        html.Div(
+                            html.Img(
+                                src=app.get_asset_url('bg1.jpg'),
+                                style= {'max-width': '100%',
+                                'max-height': '100%'
+                                }))
+                        ],
                     className="pretty_container five columns",
                 ),
             ],
@@ -449,20 +460,46 @@ def make_main_figure(
     well_statuses, well_types, year_slider, selector, main_graph_layout
 ):
 
-    dff = filter_dataframe(df, well_statuses, well_types, year_slider)
+    ## Test Choropleth / animated
+    # path_cases = DATA_PATH.joinpath('/regencyCasesBali.xlsx')
+    # path_geojson = DATA_PATH.joinpath('/bali_geojson_id.geojson', 'r')
 
-    traces = []
-    for well_type, dfff in dff.groupby("Well_Type"):
-        trace = dict(
-            type="scattermapbox",
-            lon=dfff["Surface_Longitude"],
-            lat=dfff["Surface_latitude"],
-            text=dfff["Well_Name"],
-            customdata=dfff["API_WellNo"],
-            name=WELL_TYPES[well_type],
-            marker=dict(size=4, opacity=0.6),
+    df_bali = pd.read_excel(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
+    geojson_bali = json.load(open(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson', 'r'))
+
+    figure = px.choropleth_mapbox(
+        df_bali, 
+        geojson=geojson_bali, 
+        locations='id', 
+        color='total cases',
+        mapbox_style='carto-positron', 
+        hover_name='Regency', 
+        hover_data=['new cases total', 'total cases'],
+        animation_frame="Date",
+        color_continuous_scale='blues',
+        # title='Covid Cases in Bali per Regency', 
+        zoom=7, 
+        center={"lat": -8.5002, "lon": 115.0129},
+        opacity=0.5,
         )
-        traces.append(trace)
+
+    figure.update_layout({'height': 800})
+
+    ## Original Figure
+    # dff = filter_dataframe(df, well_statuses, well_types, year_slider)
+
+    # traces = []
+    # for well_type, dfff in dff.groupby("Well_Type"):
+    #     trace = dict(
+    #         type="scattermapbox",
+    #         lon=dfff["Surface_Longitude"],
+    #         lat=dfff["Surface_latitude"],
+    #         text=dfff["Well_Name"],
+    #         customdata=dfff["API_WellNo"],
+    #         name=WELL_TYPES[well_type],
+    #         marker=dict(size=4, opacity=0.6),
+    #     )
+    #     traces.append(trace)
 
     # relayoutData is None by default, and {'autosize': True} without relayout action
     if main_graph_layout is not None and selector is not None and "locked" in selector:
@@ -474,7 +511,7 @@ def make_main_figure(
             layout["mapbox"]["center"]["lat"] = lat
             layout["mapbox"]["zoom"] = zoom
 
-    figure = dict(data=traces, layout=layout)
+    # figure = dict(data=traces, layout=layout)
     return figure
 
 
