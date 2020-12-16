@@ -18,6 +18,7 @@ import dash_html_components as html
 
 # Multi-dropdown options
 from controls import COUNTIES, WELL_STATUSES, WELL_TYPES, WELL_COLORS
+import controls
 
 
 # get relative data folder
@@ -81,7 +82,7 @@ layout = dict(
     mapbox=dict(
         accesstoken=mapbox_access_token,
         style="light",
-        center=dict(lon=-78.05, lat=42.54),
+        center=dict(lon=-9.05, lat=43.54),
         zoom=7,
     ),
 )
@@ -176,6 +177,13 @@ app.layout = html.Div(
                             value=[1990, 2010],
                             className="dcc_control",
                         ),
+                        dcc.Checklist(
+                            id="lock_selector",
+                            options=[{"label": "Lock camera", "value": "locked"}],
+                            className="dcc_control",
+                            value=[],
+                        ),
+
                         html.P("Filter by Cases:", className="control_label"),
                         dcc.RadioItems(
                             id="well_status_selector",
@@ -276,9 +284,9 @@ app.layout = html.Div(
                         # dcc.Graph(id="individual_graph")
                         html.Div(
                             html.Img(
-                                src=app.get_asset_url('bg1.jpg'),
+                                src=app.get_asset_url('pic1.jpg'),
                                 style={'max-width': '100%',
-                                       # 'max-height': '100%'
+                                       'max-height': '100%',
                                        }))
                     ],
                     className="pretty_container five columns",
@@ -470,32 +478,40 @@ app.clientside_callback(
         Input('region_selector', 'value')
     ],
     [
-        # State("lock_selector", "value"),
+        State("lock_selector", "value"),
         State("main_graph", "relayoutData")],
 )
-def make_main_figure(region, year_value, main_graph_layout):  # selector,
+def make_main_figure(year_value, region, selector,  main_graph_layout):  
     print(region)
     print(year_value)
     print(main_graph_layout)    
     
     PATH = pathlib.Path(__file__).parent
-
-    if region[0] =='bali':
-        df = pd.read_excel(PATH.joinpath('../data/regencyCasesBali.xlsx'))
-        geojson = json.load(open(PATH.joinpath('../data/bali_geojson_id.geojson', 'r')))
-    # elif region == 'indo':
-    #     df = pd.read_excel(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
-    #     geojson = json.load(open(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson', 'r'))
+    # zoom, center = controls.zoom_center(lons=[5, 10, 25, 30, 35, 40, 45, 50, 100, 115], lats=[0, 15, 20, 35, 45, 50])
+    
+    if region =='bali':
+        df = pd.read_excel(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
+        geojson = json.load(open(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson', 'r'))
+        center = {"lat": -8.5002, "lon": 115.0129}
+        zoom=7
+    
+    elif region == 'indo':
+        df = pd.read_excel(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv')
+        geojson = json.load(open(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson', 'r'))
+        center = {'lat': 0, 'lon': 105}
+        zoom = 4
+    
     else:
         df = pd.read_csv(PATH.joinpath(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'))
         geojson = json.load(open(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\geojson_ger.json', 'r'))
-
+        center = {"lat": 48.5002, "lon": 9.0129}
+        zoom = 6
     # df_bali = pd.read_excel(
     #     r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
     # geojson_bali = json.load(open(
     #     r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson', 'r'))
 
-    figure = px.choropleth_mapbox(
+    fig = px.choropleth_mapbox(
         df,
         geojson=geojson,
         locations='id',
@@ -505,13 +521,14 @@ def make_main_figure(region, year_value, main_graph_layout):  # selector,
         # hover_data=['new cases total', 'total cases'],
         # animation_frame="Date",
         color_continuous_scale='blues',
-        zoom=7,
-        # center={"lat": -8.5002, "lon": 115.0129},
+        zoom= zoom,
+        center= center,
         opacity=0.5,
     )
 
-    figure.update_layout({})
-    figure.update_geos(fitbounds="locations")
+    fig.update_geos(fitbounds="locations", visible=False)
+    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    display_fig = go.Figure(fig)
 
     # Original Figure
     # dff = filter_dataframe(df, well_statuses, well_types, year_slider)
@@ -540,7 +557,7 @@ def make_main_figure(region, year_value, main_graph_layout):  # selector,
             layout["mapbox"]["zoom"] = zoom
 
     # figure = dict(data=traces, layout=layout)
-    return figure
+    return display_fig
 
 
 # # Main graph -> individual graph
