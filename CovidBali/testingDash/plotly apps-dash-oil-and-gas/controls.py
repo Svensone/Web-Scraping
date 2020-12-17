@@ -5,6 +5,7 @@ import numpy as np
 
 ## since fitbounds='location not working
 # from https://stackoverflow.com/questions/63787612/plotly-automatic-zooming-for-mapbox-maps
+## NOT WORKING ! zoom and center defined in if clause
 
 def zoom_center(lons: tuple=None, lats: tuple=None, lonlats: tuple=None,
         format: str='lonlat', projection: str='mercator',
@@ -71,7 +72,18 @@ def zoom_center(lons: tuple=None, lats: tuple=None, lonlats: tuple=None,
         )
     
     return zoom, center
-
+    
+REGENCIES = dict(
+    JE = 'Jembrana',
+    BA = 'Badung',
+    DE = 'Kota Denpasar',
+    BU = 'Buleleng',
+    KL = 'Klungung'
+    TA = 'Tabanan',
+    GI = 'Gianyar',
+    KA = 'Karangasem',
+    BA = 'Bangli'
+    )
 
 COUNTIES = {
     "001": "Albany",

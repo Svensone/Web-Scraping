@@ -17,7 +17,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 # Multi-dropdown options
-from controls import COUNTIES, WELL_STATUSES, WELL_TYPES, WELL_COLORS
+from controls import REGENCIES, COUNTIES, WELL_STATUSES, WELL_TYPES, WELL_COLORS
 import controls
 
 
@@ -31,41 +31,23 @@ app = dash.Dash(
 server = app.server
 
 # Create controls
+## own controls for Bali_Covid Dash-App
+regency_options = [
+    {'label': str(REGENCIES[x]), 'value': str(REGENCIES[x])} for x in REGENCIES
+]
+
+## from template (old)
 county_options = [
     {"label": str(COUNTIES[county]), "value": str(county)} for county in COUNTIES
 ]
-
 well_status_options = [
     {"label": str(WELL_STATUSES[well_status]), "value": str(well_status)}
     for well_status in WELL_STATUSES
 ]
-
 well_type_options = [
     {"label": str(WELL_TYPES[well_type]), "value": str(well_type)}
     for well_type in WELL_TYPES
 ]
-
-
-# Download pickle file
-# urllib.request.urlretrieve(
-#     "https://raw.githubusercontent.com/plotly/datasets/master/dash-sample-apps/dash-oil-and-gas/data/points.pkl",
-#     DATA_PATH.joinpath("points.pkl"),
-# )
-# points = pickle.load(open(DATA_PATH.joinpath("points.pkl"), "rb"))
-
-
-# Load data
-# df = pd.read_csv(
-#     "https://github.com/plotly/datasets/raw/master/dash-sample-apps/dash-oil-and-gas/data/wellspublic.csv",
-#     low_memory=False,
-# )
-# df["Date_Well_Completed"] = pd.to_datetime(df["Date_Well_Completed"])
-# df = df[df["Date_Well_Completed"] > dt.datetime(1960, 1, 1)]
-
-# trim = df[["API_WellNo", "Well_Type", "Well_Name"]]
-# trim.index = trim["API_WellNo"]
-# dataset = trim.to_dict(orient="index")
-
 
 # Create global chart template
 mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNrOWJqb2F4djBnMjEzbG50amg0dnJieG4ifQ.Zme1-Uzoi75IaFbieBDl3A"
@@ -82,7 +64,7 @@ layout = dict(
     mapbox=dict(
         accesstoken=mapbox_access_token,
         style="light",
-        center=dict(lon=-9.05, lat=43.54),
+        center=dict(lon=114, lat=-8.54),
         zoom=7,
     ),
 )
@@ -91,13 +73,14 @@ layout = dict(
 app.layout = html.Div(
     [
         dcc.Store(id="aggregate_data"),
-
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output-clientside"),
+        
+        # Header Component
+        # ------------------------------
         html.Div(
             [
-                # Header Component
-                # ------------------------------
+                
                 html.Div(
                     [
                         html.Img(
@@ -145,6 +128,7 @@ app.layout = html.Div(
             style={"margin-bottom": "25px"},
         ),
 
+        
         html.Div(
             [
                 # Controls Panel Component
@@ -214,9 +198,9 @@ app.layout = html.Div(
                         ),
                         dcc.Dropdown(
                             id="well_types",
-                            options=well_type_options,
+                            options= regency_options,       #well_type_options,
                             multi=True,
-                            value=list(WELL_TYPES.keys()),
+                            value= list(REGENCIES.values()),          #list(WELL_TYPES.keys()),
                             className="dcc_control",
                         ),
                     ],
@@ -232,7 +216,7 @@ app.layout = html.Div(
                             [
                                 html.Div(
                                     [html.H6(id="well_text"),
-                                     html.P("No. of Wells")],
+                                     html.P("Mortality Rate")],
                                     id="wells",
                                     className="mini_container",
                                 ),
@@ -446,17 +430,30 @@ app.clientside_callback(
 #     return [min(nums) + 1960, max(nums) + 1961]
 
 
-# Selectors -> well text
-# @app.callback(
-#     Output("well_text", "children"),
-#     [
-#         Input("year_slider", "value"),
-#     ],
-# )
-# def update_well_text(year_slider):
+## Selectors -> well text
+@app.callback(
+    Output("well_text", "children"),
+    [
+        Input('well_types', 'value'),
+        Input('region_selector', 'value'),
 
-#     dff = filter_dataframe(df, well_statuses, well_types, year_slider)
-#     return dff.shape[0]
+    ],
+)
+def update_well_text(regency, region):
+    print(regency)
+    print(region)
+
+    if region =='bali':
+        df = pd.read_excel(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
+         
+    elif region == 'indo':
+        df = pd.read_csv(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_province_cases.csv')
+        
+    else:
+        df = pd.read_csv(PATH.joinpath(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'))
+        
+    df_1 = df[df['Regency'].str.match(regency)]
+    return df['mortality_rate'][0]
 
 
 # @app.callback(
@@ -496,20 +493,16 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
         zoom=7
     
     elif region == 'indo':
-        df = pd.read_excel(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv')
+        df = pd.read_csv(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_province_cases.csv')
         geojson = json.load(open(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson', 'r'))
         center = {'lat': 0, 'lon': 105}
-        zoom = 4
+        zoom = 2
     
     else:
         df = pd.read_csv(PATH.joinpath(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'))
         geojson = json.load(open(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\geojson_ger.json', 'r'))
         center = {"lat": 48.5002, "lon": 9.0129}
         zoom = 6
-    # df_bali = pd.read_excel(
-    #     r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
-    # geojson_bali = json.load(open(
-    #     r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson', 'r'))
 
     fig = px.choropleth_mapbox(
         df,
