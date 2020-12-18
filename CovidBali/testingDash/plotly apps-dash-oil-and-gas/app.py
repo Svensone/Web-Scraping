@@ -31,12 +31,12 @@ app = dash.Dash(
 server = app.server
 
 # Create controls
-## own controls for Bali_Covid Dash-App
+# own controls for Bali_Covid Dash-App
 regency_options = [
     {'label': str(REGENCIES[x]), 'value': str(REGENCIES[x])} for x in REGENCIES
 ]
 
-## from template (old)
+# from template (old)
 county_options = [
     {"label": str(COUNTIES[county]), "value": str(county)} for county in COUNTIES
 ]
@@ -75,21 +75,19 @@ app.layout = html.Div(
         dcc.Store(id="aggregate_data"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output-clientside"),
-        
+
         # Header Component
         # ------------------------------
         html.Div(
             [
-                
                 html.Div(
                     [
                         html.Img(
                             src=app.get_asset_url("Barong-Mask.png"),
                             id="plotly-image",
                             style={
-                                "height": "100px",
+                                "height": "60px",
                                 "width": "auto",
-                                "margin-bottom": "25px",
                             },
                         )
                     ],
@@ -99,13 +97,8 @@ app.layout = html.Div(
                     [
                         html.Div(
                             [
-                                html.H3(
-                                    "Covid Cases",
-                                    style={"margin-bottom": "0px"},
-                                ),
-                                html.H5(
-                                    "Cases in Bali per Regency", style={"margin-top": "0px"}
-                                ),
+                                html.H3("Covid Cases", style={"margin-bottom": "0px"},),
+                                html.H5("Cases in Bali per Regency", style={"margin-top": "0px"}),
                             ]
                         )
                     ],
@@ -125,10 +118,8 @@ app.layout = html.Div(
             ],
             id="header",
             className="row flex-display",
-            style={"margin-bottom": "25px"},
+            style={"margin-bottom": "10px"},
         ),
-
-        
         html.Div(
             [
                 # Controls Panel Component
@@ -142,14 +133,35 @@ app.layout = html.Div(
                         dcc.RadioItems(
                             id='region_selector',
                             options=[
-                                {'label': 'Bali', 'value': 'bali'},
                                 {'label': 'Indonesia', 'value': 'indo'},
-                                {'label': 'Germany', 'value': 'ger'}
+                                {'label': 'Bali', 'value': 'bali'},
                             ],
                             labelStyle={"display": "inline-block"},
                             value="bali",
                             className="dcc_control",
                         ),
+                        html.P("Filter by Regency:",
+                               className="control_label"),
+                        dcc.Dropdown(
+                            id="regency_selector",
+                            options=regency_options,  # well_type_options,
+                            multi=False,
+                            value='Jembrana',
+                            className="dcc_control",
+                        ),
+                        # dcc.RadioItems(
+                        #     id="well_type_selector",
+                        #     options=[
+                        #         {"label": "All ", "value": "all"},
+                        #         {"label": "Jembrana", "value": "productive"},
+                        #         {"label": "Denpasar ", "value": "custom"},
+                        #     ],
+                        #     value="productive",
+                        #     labelStyle={"display": "inline-block"},
+                        #     className="dcc_control",
+                        # ),
+
+                        html.P('NOT YET !!', className="control_label",),
                         html.P(
                             "Filter by date (or select range in histogram):",
                             className="control_label",
@@ -163,11 +175,11 @@ app.layout = html.Div(
                         ),
                         dcc.Checklist(
                             id="lock_selector",
-                            options=[{"label": "Lock camera", "value": "locked"}],
+                            options=[
+                                {"label": "Lock camera", "value": "locked"}],
                             className="dcc_control",
                             value=[],
                         ),
-
                         html.P("Filter by Cases:", className="control_label"),
                         dcc.RadioItems(
                             id="well_status_selector",
@@ -182,27 +194,6 @@ app.layout = html.Div(
                             labelStyle={"display": "inline-block"},
                             className="dcc_control",
                         ),
-
-                        html.P("Filter by Regency:",
-                               className="control_label"),
-                        dcc.RadioItems(
-                            id="well_type_selector",
-                            options=[
-                                {"label": "All ", "value": "all"},
-                                {"label": "Jembrana", "value": "productive"},
-                                {"label": "Denpasar ", "value": "custom"},
-                            ],
-                            value="productive",
-                            labelStyle={"display": "inline-block"},
-                            className="dcc_control",
-                        ),
-                        dcc.Dropdown(
-                            id="well_types",
-                            options= regency_options,       #well_type_options,
-                            multi=True,
-                            value= list(REGENCIES.values()),          #list(WELL_TYPES.keys()),
-                            className="dcc_control",
-                        ),
                     ],
                     className="pretty_container four columns",
                     id="cross-filter-options",
@@ -215,23 +206,23 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Div(
-                                    [html.H6(id="well_text"),
-                                     html.P("Mortality Rate")],
+                                    [html.P(id="cases_mortality"),
+                                    ],
                                     id="wells",
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="gasText"), html.P("Gas")],
+                                    [html.H6(id="gasText"), html.P("cases per 100k")],
                                     id="gas",
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="oilText"), html.P("Oil")],
+                                    [html.H6(id="oilText"), html.P("Deaths per 100k")],
                                     id="oil",
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="waterText"), html.P("Water")],
+                                    [html.H6(id="waterText"), html.P("Cases growth-rate")],
                                     id="water",
                                     className="mini_container",
                                 ),
@@ -242,7 +233,7 @@ app.layout = html.Div(
                         html.Div(
                             [dcc.Graph(id="count_graph")],
                             id="countGraphContainer",
-                            style={"minHeight": "60vh"},
+                            style={"minHeight": "50vh"},
                             className="pretty_container",
                         ),
                     ],
@@ -307,10 +298,10 @@ def human_format(num):
     return mantissa + ["", "K", "M", "G", "T", "P"][magnitude]
 
 
-def filter_dataframe(df, well_statuses, well_types, year_slider):
+def filter_dataframe(df, well_statuses, regency_selector, year_slider):
     dff = df[
         df["Well_Status"].isin(well_statuses)
-        & df["Well_Type"].isin(well_types)
+        & df["Well_Type"].isin(regency_selector)
         & (df["Date_Well_Completed"] > dt.datetime(year_slider[0], 1, 1))
         & (df["Date_Well_Completed"] < dt.datetime(year_slider[1], 1, 1))
     ]
@@ -391,7 +382,7 @@ app.clientside_callback(
 #     [Input("year_slider", "value"),],
 # )
 # def update_production_text(year_slider):
-#     dff = filter_dataframe(df, well_statuses, well_types, year_slider)
+#     dff = filter_dataframe(df, well_statuses, regency_selector, year_slider)
 #     selected = dff["API_WellNo"].values
 #     index, gas, oil, water = produce_aggregate(selected, year_slider)
 #     return [human_format(sum(gas)), human_format(sum(oil)), human_format(sum(water))]
@@ -410,7 +401,7 @@ app.clientside_callback(
 
 
 # # Radio -> multi
-# @app.callback(Output("well_types", "value"), [Input("well_type_selector", "value")])
+# @app.callback(Output("regency_selector", "value"), [Input("well_type_selector", "value")])
 # def display_type(selector):
 #     if selector == "all":
 #         return list(WELL_TYPES.keys())
@@ -430,30 +421,35 @@ app.clientside_callback(
 #     return [min(nums) + 1960, max(nums) + 1961]
 
 
-## Selectors -> well text
+# Selectors -> regenc text
 @app.callback(
-    Output("well_text", "children"),
+    Output("cases_mortality", "children"),
     [
-        Input('well_types', 'value'),
+        Input('regency_selector', 'value'),
         Input('region_selector', 'value'),
 
     ],
 )
-def update_well_text(regency, region):
+def update_cases_mortality(regency, region):
     print(regency)
     print(region)
+    # if region == 'bali':
+    #     df = pd.read_excel(
+    #         r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx'),
+    # else:
+    #     df = pd.read_csv(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_province_cases.csv'),
+    
+    if region == 'bali':
+        df = pd.read_excel(
+            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
 
-    if region =='bali':
-        df = pd.read_excel(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
-         
-    elif region == 'indo':
-        df = pd.read_csv(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_province_cases.csv')
-        
-    else:
-        df = pd.read_csv(PATH.joinpath(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'))
-        
-    df_1 = df[df['Regency'].str.match(regency)]
-    return df['mortality_rate'][0]
+    mortality_rate = df[df["Regency"].str.match(regency)]
+    mort_rate = mortality_rate['mortality_rate'].iloc[2]
+    mort_rate = mort_rate.round(2)
+    print(mort_rate)
+    # ['mortality_rate'][0]
+    # text = ('the moratality for {} is {}'.format(regency, mort_rate))
+    return 'mortality rate \n {} : {}'.format(regency, mort_rate)
 
 
 # @app.callback(
@@ -478,29 +474,32 @@ def update_well_text(regency, region):
         State("lock_selector", "value"),
         State("main_graph", "relayoutData")],
 )
-def make_main_figure(year_value, region, selector,  main_graph_layout):  
+def make_main_figure(year_value, region, selector,  main_graph_layout):
     print(region)
     print(year_value)
-    print(main_graph_layout)    
-    
+    print(main_graph_layout)
     PATH = pathlib.Path(__file__).parent
     # zoom, center = controls.zoom_center(lons=[5, 10, 25, 30, 35, 40, 45, 50, 100, 115], lats=[0, 15, 20, 35, 45, 50])
-    
-    if region =='bali':
-        df = pd.read_excel(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
-        geojson = json.load(open(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson', 'r'))
+    if region == 'bali':
+        df = pd.read_excel(
+            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
+        geojson = json.load(open(
+            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson', 'r'))
         center = {"lat": -8.5002, "lon": 115.0129}
-        zoom=7
-    
+        zoom = 7
     elif region == 'indo':
-        df = pd.read_csv(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_province_cases.csv')
-        geojson = json.load(open(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson', 'r'))
+        df = pd.read_csv(
+            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_province_cases.csv')
+        geojson = json.load(open(
+            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson', 'r'))
         center = {'lat': 0, 'lon': 105}
         zoom = 2
-    
+
     else:
-        df = pd.read_csv(PATH.joinpath(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'))
-        geojson = json.load(open(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\geojson_ger.json', 'r'))
+        df = pd.read_csv(PATH.joinpath(
+            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'))
+        geojson = json.load(open(
+            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\geojson_ger.json', 'r'))
         center = {"lat": 48.5002, "lon": 9.0129}
         zoom = 6
 
@@ -514,8 +513,8 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
         # hover_data=['new cases total', 'total cases'],
         # animation_frame="Date",
         color_continuous_scale='blues',
-        zoom= zoom,
-        center= center,
+        zoom=zoom,
+        center=center,
         opacity=0.5,
     )
 
@@ -524,7 +523,7 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
     display_fig = go.Figure(fig)
 
     # Original Figure
-    # dff = filter_dataframe(df, well_statuses, well_types, year_slider)
+    # dff = filter_dataframe(df, well_statuses, regency_selector, year_slider)
 
     # traces = []
     # for well_type, dfff in dff.groupby("Well_Type"):
@@ -625,7 +624,7 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
 #         # Input("main_graph", "hoverData"),
 #     ],
 # )
-# def make_aggregate_figure(year_slider): #, main_graph_hover , well_statuses, well_types,
+# def make_aggregate_figure(year_slider): #, main_graph_hover , well_statuses, regency_selector,
 
 #     layout_aggregate = copy.deepcopy(layout)
 
@@ -638,7 +637,7 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
 
 #     chosen = [point["customdata"] for point in main_graph_hover["points"]]
 #     well_type = dataset[chosen[0]]["Well_Type"]
-#     dff = filter_dataframe(df, well_statuses, well_types, year_slider)
+#     dff = filter_dataframe(df, well_statuses, regency_selector, year_slider)
 
 #     selected = dff[dff["Well_Type"] == well_type]["API_WellNo"].values
 #     index, gas, oil, water = produce_aggregate(selected, year_slider)
@@ -680,15 +679,15 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
 #     Output("pie_graph", "figure"),
 #     [
 #         # Input("well_statuses", "value"),
-#         # Input("well_types", "value"),
+#         # Input("regency_selector", "value"),
 #         Input("year_slider", "value"),
 #     ],
 # )
-# def make_pie_figure(well_statuses, well_types, year_slider):
+# def make_pie_figure(well_statuses, regency_selector, year_slider):
 
 #     layout_pie = copy.deepcopy(layout)
 
-#     dff = filter_dataframe(df, well_statuses, well_types, year_slider)
+#     dff = filter_dataframe(df, well_statuses, regency_selector, year_slider)
 
 #     selected = dff["API_WellNo"].values
 #     index, gas, oil, water = produce_aggregate(selected, year_slider)
@@ -740,13 +739,17 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
 @app.callback(
     Output("count_graph", "figure"),
     [
+        Input('region_selector', 'value'),
+        Input('regency_selector', 'value'),
         Input("year_slider", "value"),
     ],
 )
 def make_count_figure(year_slider):
-
     data_path = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv'
-
+    if region == 'indo':
+        df = pd.read_csv(data_path)
+    else:
+        df = 
     df_indo = pd.read_csv(data_path)
     df_bali = df_indo[df_indo['Location'].str.match('Bali')]
     df_test = df_bali.tail(20)
@@ -770,7 +773,6 @@ def make_count_figure(year_slider):
             )
         )
     fig.update_layout(
-
         title='Daily Cases in Bali',
         xaxis_tickfont_size=14,
         yaxis=dict(
@@ -794,7 +796,7 @@ def make_count_figure(year_slider):
 
     # layout_count = copy.deepcopy(layout)
 
-    # dff = filter_dataframe(df, well_statuses, well_types, [1960, 2017])
+    # dff = filter_dataframe(df, well_statuses, regency_selector, [1960, 2017])
     # g = dff[["API_WellNo", "Date_Well_Completed"]]
     # g.index = g["Date_Well_Completed"]
     # g = g.resample("A").count()
