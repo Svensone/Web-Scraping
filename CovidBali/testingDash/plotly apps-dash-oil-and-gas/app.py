@@ -87,8 +87,7 @@ app.layout = html.Div(
                             id="plotly-image",
                             style={
                                 "height": "60px",
-                                "width": "auto",
-                            },
+                                "width": "auto",},
                         )
                     ],
                     className="one-third column",
@@ -195,7 +194,7 @@ app.layout = html.Div(
                             className="dcc_control",
                         ),
                     ],
-                    className="pretty_container four columns",
+                    className="pretty_container three columns",
                     id="cross-filter-options",
                 ),
 
@@ -431,18 +430,17 @@ app.clientside_callback(
     ],
 )
 def update_cases_mortality(regency, region):
-    print(regency)
-    print(region)
-    # if region == 'bali':
-    #     df = pd.read_excel(
-    #         r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx'),
-    # else:
-    #     df = pd.read_csv(r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_province_cases.csv'),
     
     if region == 'bali':
         df = pd.read_excel(
             r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
+    else:
+         df = pd.read_excel(
+            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv')
+    
 
+    ## no mortality column yet in df_indo !!!!!!!!
+    
     mortality_rate = df[df["Regency"].str.match(regency)]
     mort_rate = mortality_rate['mortality_rate'].iloc[2]
     mort_rate = mort_rate.round(2)

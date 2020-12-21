@@ -8,7 +8,6 @@ class BaliItem(Item):
     date = Field()
     data = Field()
 
-
 class BaliSpider(scrapy.Spider):
 
     name = 'bali'
@@ -16,7 +15,6 @@ class BaliSpider(scrapy.Spider):
         "https://infocorona.baliprov.go.id/API/pendataan/laporan-harian-01.php",
         'https://infocorona.baliprov.go.id/API/pendataan/laporan-harian-02.php'
         ]
-    
 
     def parse(self, response):
         page = response.url.split("/")[-2]
@@ -26,8 +24,6 @@ class BaliSpider(scrapy.Spider):
         item = BaliItem()
         item['date'] = update_date[-14:-2]
         item.setdefault('data', [])
-
-        # step 3:
         
         for row in response.css('tbody tr'):
             regencyData = row.css('td::text').getall()

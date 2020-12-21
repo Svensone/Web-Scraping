@@ -3,8 +3,13 @@
   margin-right: 3.5%;
 }
 
+/* plotly color schemes "BLUES"
+['rgb(247,251,255)', 'rgb(222,235,247)', 
+'rgb(198,219,239)', 'rgb(158,202,225)', 
+'rgb(107,174,214)', 'rgb(66,146,198)',
+ 'rgb(33,113,181)', 'rgb(8,81,156)', 'rgb(8,48,107)'] */
 body {
-  background-color: #f2f2f2;
+  background-color:rgb(222,235,247);
   /* margin: 5%; */
   margin-top: 1%;
   margin-bottom: 5%;
@@ -101,7 +106,7 @@ body {
   border-radius: 5px;
   background-color: #f9f9f9;
   margin: 10px;
-  padding: 15px;
+  padding: 10px;
   position: relative;
   box-shadow: 2px 2px 2px lightgrey;
 }
