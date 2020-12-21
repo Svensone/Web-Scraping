@@ -146,7 +146,7 @@ app.layout = html.Div(
                             id="regency_selector",
                             options=regency_options,  # well_type_options,
                             multi=False,
-                            value='Jembrana',
+                            value='',
                             className="dcc_control",
                         ),
                         # dcc.RadioItems(
@@ -744,21 +744,33 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
         Input("year_slider", "value"),
     ],
 )
-def make_count_figure(year_slider):
-    data_path = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv'
+def make_count_figure(region, regency, year_slider):
+
+    print('region {} regency {} year_slider {}'.format(region, regency, year_slider))
+    data_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv'
+    data_bali_regency = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx'
     if region == 'indo':
-        df = pd.read_csv(data_path)
+        df = pd.read_csv(data_indo)
+        region_selected = 'Indonesia'
+
+    elif region == 'bali' and regency == '':
+        df = pd.read_csv(data_indo)
+        region_selected = 'Bali' 
     else:
-        df = 
-    df_indo = pd.read_csv(data_path)
-    df_bali = df_indo[df_indo['Location'].str.match('Bali')]
-    df_test = df_bali.tail(20)
+        df = pd.read_excel(data_bali_regency)
+        region_selected = regency
+
+    # df_indo = pd.read_csv(data_path)
+    df = df[df['Location'].str.match(region_selected)]
+
+    df_test = df.tail(50)
     days = df_test.Date.to_list()
 
     fig = go.Figure()
 
-    selected_list = ['New Cases', 'New Deaths',
-                     'New Recovered', 'New Active Cases', ]
+    selected_list = ['Total Cases', 'Total Deaths',
+                    #  'New Recovered', 'New Active Cases', 
+                     ]
     colors = px.colors.sequential.Blues
     count = 0
 
