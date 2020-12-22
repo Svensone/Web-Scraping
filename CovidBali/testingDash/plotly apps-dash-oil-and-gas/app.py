@@ -490,7 +490,7 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
             r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_province_cases.csv')
         geojson = json.load(open(
             r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson', 'r'))
-        center = {'lat': 0, 'lon': 105}
+        center = {'lat': 0, 'lon': 107}
         zoom = 2
 
     else:
