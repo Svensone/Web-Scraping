@@ -31,11 +31,12 @@ app = dash.Dash(
 server = app.server
 
 # Create controls
+#---------------------
+
 # own controls for Bali_Covid Dash-App
 regency_options = [
     {'label': str(REGENCIES[x]), 'value': str(REGENCIES[x])} for x in REGENCIES
 ]
-
 # from template (old)
 county_options = [
     {"label": str(COUNTIES[county]), "value": str(county)} for county in COUNTIES
@@ -50,6 +51,7 @@ well_type_options = [
 ]
 
 # Create global chart template
+#-----------------------------
 mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNrOWJqb2F4djBnMjEzbG50amg0dnJieG4ifQ.Zme1-Uzoi75IaFbieBDl3A"
 
 layout = dict(
@@ -69,7 +71,17 @@ layout = dict(
     ),
 )
 
+# Data paths
+#-----------------------------
+
+data_covid_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\data_process\dailyCasesTest.csv'
+data_covid_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv'
+data_covid_germany = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'
+geojson_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson'
+gejson_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson'
+geojson_germany = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\geojson_ger.json'
 # Create app layout
+#-----------------------------
 app.layout = html.Div(
     [
         dcc.Store(id="aggregate_data"),
@@ -211,12 +223,12 @@ app.layout = html.Div(
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="gasText"), html.P("cases per 100k")],
+                                    [html.H6(id="cases_per_100k"), html.P("Cases per 100k")],
                                     id="gas",
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="oilText"), html.P("Deaths per 100k")],
+                                    [html.H6(id="deaths_per_100k"), html.P("Deaths per 100k")],
                                     id="oil",
                                     className="mini_container",
                                 ),
@@ -423,37 +435,30 @@ app.clientside_callback(
 # Selectors -> regenc text
 @app.callback(
     Output("cases_mortality", "children"),
-    [
-        Input('regency_selector', 'value'),
-        Input('region_selector', 'value'),
-
-    ],
-)
+    [Input('regency_selector', 'value'),
+    Input('region_selector', 'value')],)
+    
 def update_cases_mortality(regency, region):
-    
     if region == 'bali':
-        df = pd.read_excel(
-            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
+        df = pd.read_csv(data_covid_bali)
     else:
-         df = pd.read_excel(
-            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv')
-    
+        df = pd.read_excel(data_covid_indo)
 
     ## no mortality column yet in df_indo !!!!!!!!
+    if regency is None:
+        selected_region = df[df['Name_EN'].str.match('bali')]
+    else:
+        selected_region = df[df['Name_EN'].str.match(regency)]
     
-    mortality_rate = df[df["Regency"].str.match(regency)]
-    mort_rate = mortality_rate['mortality_rate'].iloc[2]
-    mort_rate = mort_rate.round(2)
-    print(mort_rate)
-    # ['mortality_rate'][0]
-    # text = ('the moratality for {} is {}'.format(regency, mort_rate))
-    return 'mortality rate \n {} : {}'.format(regency, mort_rate)
+    # select the latest case fatality ratio (later with selected Date)
+    cfr = selected_region['CFR'].iloc[-1].round(2)
+    return 'mortality rate \n {} : {}'.format(regency, cfr)
 
 
 # @app.callback(
 #     [
-#         Output("gasText", "children"),
-#         Output("oilText", "children"),
+#         Output("cases_per_100k", "children"),
+#         Output("deaths_per_100k", "children"),
 #         Output("waterText", "children"),],
 #     [Input("aggregate_data", "data")],
 # )
@@ -520,22 +525,6 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     display_fig = go.Figure(fig)
 
-    # Original Figure
-    # dff = filter_dataframe(df, well_statuses, regency_selector, year_slider)
-
-    # traces = []
-    # for well_type, dfff in dff.groupby("Well_Type"):
-    #     trace = dict(
-    #         type="scattermapbox",
-    #         lon=dfff["Surface_Longitude"],
-    #         lat=dfff["Surface_latitude"],
-    #         text=dfff["Well_Name"],
-    #         customdata=dfff["API_WellNo"],
-    #         name=WELL_TYPES[well_type],
-    #         marker=dict(size=4, opacity=0.6),
-    #     )
-    #     traces.append(trace)
-
     # relayoutData is None by default, and {'autosize': True} without relayout action
     if main_graph_layout is not None and selector is not None and "locked" in selector:
         if "mapbox.center" in main_graph_layout.keys():
@@ -549,6 +538,77 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
     # figure = dict(data=traces, layout=layout)
     return display_fig
 
+
+# Selectors -> count graph
+@app.callback(
+    Output("count_graph", "figure"),
+    [
+        Input('region_selector', 'value'),
+        Input('regency_selector', 'value'),
+        Input("year_slider", "value"),
+    ],
+)
+def make_count_figure(region, regency, year_slider):
+
+    print('region {} regency {} year_slider {}'.format(region, regency, year_slider))
+    data_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv'
+    data_bali_regency = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx'
+    if region == 'indo':
+        df = pd.read_csv(data_indo)
+        region_selected = 'Indonesia'
+
+    elif region == 'bali' and regency == '':
+        df = pd.read_csv(data_indo)
+        region_selected = 'Bali' 
+    else:
+        df = pd.read_excel(data_bali_regency)
+        region_selected = regency
+
+    # df_indo = pd.read_csv(data_path)
+    df = df[df['Location'].str.match(region_selected)]
+
+    df_test = df.tail(50)
+    days = df_test.Date.to_list()
+
+    fig = go.Figure()
+
+    selected_list = ['Total Cases', 'Total Deaths',
+                    #  'New Recovered', 'New Active Cases', 
+                     ]
+    colors = px.colors.sequential.Blues
+    count = 0
+
+    for selected in selected_list:
+        count += 2
+        fig.add_traces(
+            go.Bar(
+                x=days,
+                y=df_test[selected],
+                name=selected,
+                marker_color=colors[count]
+            )
+        )
+    fig.update_layout(
+        title='Daily Cases in Bali',
+        xaxis_tickfont_size=14,
+        yaxis=dict(
+            title='oh',
+            titlefont_size=16,
+            tickfont_size=14,
+        ),
+        plot_bgcolor=colors[0],
+        paper_bgcolor=colors[0],
+        legend=dict(
+            x=0,
+            y=1.0,
+            bgcolor=colors[0],
+            bordercolor='white'
+        ),
+        barmode='group',
+        bargap=0.15,  # gap between bars of adjacent location coordinates.
+        bargroupgap=0.1  # gap between bars of the same location coordinate.
+    )
+    return fig
 
 # # Main graph -> individual graph
 # @app.callback(Output("individual_graph", "figure"), [Input("main_graph", "hoverData")])
@@ -732,77 +792,6 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
 #     figure = dict(data=data, layout=layout_pie)
 #     return figure
 
-
-# Selectors -> count graph
-@app.callback(
-    Output("count_graph", "figure"),
-    [
-        Input('region_selector', 'value'),
-        Input('regency_selector', 'value'),
-        Input("year_slider", "value"),
-    ],
-)
-def make_count_figure(region, regency, year_slider):
-
-    print('region {} regency {} year_slider {}'.format(region, regency, year_slider))
-    data_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv'
-    data_bali_regency = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx'
-    if region == 'indo':
-        df = pd.read_csv(data_indo)
-        region_selected = 'Indonesia'
-
-    elif region == 'bali' and regency == '':
-        df = pd.read_csv(data_indo)
-        region_selected = 'Bali' 
-    else:
-        df = pd.read_excel(data_bali_regency)
-        region_selected = regency
-
-    # df_indo = pd.read_csv(data_path)
-    df = df[df['Location'].str.match(region_selected)]
-
-    df_test = df.tail(50)
-    days = df_test.Date.to_list()
-
-    fig = go.Figure()
-
-    selected_list = ['Total Cases', 'Total Deaths',
-                    #  'New Recovered', 'New Active Cases', 
-                     ]
-    colors = px.colors.sequential.Blues
-    count = 0
-
-    for selected in selected_list:
-        count += 2
-        fig.add_traces(
-            go.Bar(
-                x=days,
-                y=df_test[selected],
-                name=selected,
-                marker_color=colors[count]
-            )
-        )
-    fig.update_layout(
-        title='Daily Cases in Bali',
-        xaxis_tickfont_size=14,
-        yaxis=dict(
-            title='oh',
-            titlefont_size=16,
-            tickfont_size=14,
-        ),
-        plot_bgcolor=colors[0],
-        paper_bgcolor=colors[0],
-        legend=dict(
-            x=0,
-            y=1.0,
-            bgcolor=colors[0],
-            bordercolor='white'
-        ),
-        barmode='group',
-        bargap=0.15,  # gap between bars of adjacent location coordinates.
-        bargroupgap=0.1  # gap between bars of the same location coordinate.
-    )
-    return fig
 
     # layout_count = copy.deepcopy(layout)
 
