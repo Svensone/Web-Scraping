@@ -28,8 +28,8 @@ DATA_PATH = PATH.joinpath("data").resolve()
 # Data paths
 #-----------------------------
 
-data_covid_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\data_process\dailyCasesTest.csv'
-data_covid_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv'
+data_covid_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\data_process\bali_regency_data.csv'
+data_covid_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\data_process\indo_province_data.csv'
 data_covid_germany = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'
 geojson_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson'
 geojson_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson'
@@ -374,51 +374,7 @@ app.clientside_callback(
     [Input("count_graph", "figure")],
 )
 
-# @app.callback(
-#     Output("aggregate_data", "data"),
-#     [Input("year_slider", "value"),],
-# )
-# def update_production_text(year_slider):
-#     dff = filter_dataframe(df, well_statuses, regency_selector, year_slider)
-#     selected = dff["API_WellNo"].values
-#     index, gas, oil, water = produce_aggregate(selected, year_slider)
-#     return [human_format(sum(gas)), human_format(sum(oil)), human_format(sum(water))]
-
-
-# # Radio -> multi
-# @app.callback(
-#     Output("well_statuses", "value"), [Input("well_status_selector", "value")]
-# )
-# def display_status(selector):
-#     if selector == "all":
-#         return list(WELL_STATUSES.keys())
-#     elif selector == "active":
-#         return ["AC"]
-#     return []
-
-
-# # Radio -> multi
-# @app.callback(Output("regency_selector", "value"), [Input("well_type_selector", "value")])
-# def display_type(selector):
-#     if selector == "all":
-#         return list(WELL_TYPES.keys())
-#     elif selector == "productive":
-#         return ["GD", "GE", "GW", "IG", "IW", "OD", "OE", "OW"]
-#     return []
-
-
-# Slider -> count graph
-# @app.callback(Output("year_slider", "value"), [Input("count_graph", "selectedData")])
-# def update_year_slider(count_graph_selected):
-
-#     if count_graph_selected is None:
-#         return [1990, 2010]
-
-#     nums = [int(point["pointNumber"]) for point in count_graph_selected["points"]]
-#     return [min(nums) + 1960, max(nums) + 1961]
-
-
-# Selectors -> regency text
+# Slectore -> Mini-Container Numbers
 @app.callback(
     [Output("cases_mortality", "children"),
     Output('cases_per_100k', 'children'),
@@ -430,22 +386,21 @@ app.clientside_callback(
     )
     
 def update_cases_mortality(regency, region):
-    if region == 'bali':
+    if region == 'indo':
+        df = pd.read_csv(data_covid_indo)
+        selected_region = df[df['Name_EN'].str.match('Indonesia')]
+    elif region == 'bali' and regency is None:
+        df = pd.read_csv(data_covid_indo)
+        selected_region = df[df['Name_EN'].str.match('Bali')]
+    else:
         df = pd.read_csv(data_covid_bali)
-    else:
-        df = pd.read_excel(data_covid_indo)
-
-    ## no mortality column yet in df_indo !!!!!!!!
-    if regency is None:
-        selected_region = df[df['Name_EN'].str.match('bali')]
-    else:
         selected_region = df[df['Name_EN'].str.match(regency)]
     
-    # select the latest case fatality ratio (later with selected Date)
     cfr = selected_region['CFR'].iloc[-1].round(2)
-    cp100k = selected_region['cases_per_100k'].iloc[-1].round(2)
-    dp100k = selected_region['deaths_per_100k'].iloc[-1].round(2)
-    return '{}'.format(cfr), '{}'.format(cp100k), '{}'.format(dp100k), 'not yet'
+    cp100k = selected_region['total_cases_per_100k'].iloc[-2]#.round(2)
+    
+    dp100k = selected_region['total_deaths_per_100k'].iloc[-2] #.round(2)
+    return '{}'.format(cfr), '{}'.format(str(round(cp100k, 2))), '{}'.format(str(round(dp100k, 2))), 'not yet'
 
 # Selectors -> main graph
 @app.callback(
@@ -458,32 +413,26 @@ def update_cases_mortality(regency, region):
         State("main_graph", "relayoutData")],
 )
 def make_main_figure(year_value, region, main_graph_layout):
-    print(region)
-    print(year_value)
-    print(main_graph_layout)
+    # print(region)
+    # print(year_value)
+    # print(main_graph_layout)
     PATH = pathlib.Path(__file__).parent
 
     # zoom, center = controls.zoom_center(lons=[5, 10, 25, 30, 35, 40, 45, 50, 100, 115], lats=[0, 15, 20, 35, 45, 50])
     if region == 'bali':
-        df = pd.read_excel(
-            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx')
-        geojson = json.load(open(
-            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson', 'r'))
+        df = pd.read_csv(data_covid_indo)
+        geojson = json.load(open(geojson_indo))
         center = {"lat": -8.5002, "lon": 115.0129}
         zoom = 7
     elif region == 'indo':
-        df = pd.read_csv(
-            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_province_cases.csv')
-        geojson = json.load(open(
-            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson', 'r'))
+        df = pd.read_csv(data_covid_indo)
+        geojson = json.load(open(geojson_indo))
         center = {'lat': 0, 'lon': 107}
         zoom = 2
 
     else:
-        df = pd.read_csv(PATH.joinpath(
-            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'))
-        geojson = json.load(open(
-            r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\geojson_ger.json', 'r'))
+        df = pd.read_csv(data_covid_germany)
+        geojson = json.load(open(geojson_germany))
         center = {"lat": 48.5002, "lon": 9.0129}
         zoom = 6
 
@@ -491,10 +440,10 @@ def make_main_figure(year_value, region, main_graph_layout):
         df,
         geojson=geojson,
         locations='id',
-        color='cases_per_100k',
+        color='total_cases_per_100k',
         mapbox_style='carto-positron',
         # hover_name='Regency',
-        # hover_data=['new cases total', 'total cases'],
+        # hover_data=[],
         # animation_frame="Date",
         color_continuous_scale='blues',
         zoom=zoom,
@@ -533,25 +482,24 @@ def make_count_figure(region, regency, year_slider):
 
     if region == 'indo':
         df = pd.read_csv(data_covid_indo)
-        region_selected = 'Indonesia'
+        region_selected = 'indonesia'
 
     elif region == 'bali' and regency == '':
         df = pd.read_csv(data_covid_indo)
-        region_selected = 'Bali'
+        region_selected = 'bali'
 
     else:
-        df = pd.read_excel(data_covid_bali)
+        df = pd.read_csv(data_covid_bali)
         region_selected = regency
-        df['Location'] = df['Name_EN']
 
-    df = df[df['Location'].str.match(region_selected)]
+    df = df[df['Name_EN'].str.match(region_selected)]
 
     df_test = df.tail(100)
     days = df_test.Date.to_list()
 
     fig = go.Figure()
 
-    selected_cases = ['Total Cases',
+    selected_cases = ['total_cases',
                      ]
     colors = px.colors.sequential.Blues
     count = 0
@@ -568,15 +516,13 @@ def make_count_figure(region, regency, year_slider):
         )
     # test plots for new cases and 
     selected_new = [
-        'Total Deaths', 
-        # 'New Cases', 
-        # 'cases_per_100k'
+        'total_cases_per_100k'
     ]
     for selected in selected_new:
         fig.add_traces(
             go.Scatter(
-                x=df["Date"], 
-                y=df[selected],
+                x=days, 
+                y=df_test[selected],
                 # mode='lines',
                 name=selected,
                 line=dict(color=colors[3], width=4)
@@ -604,231 +550,6 @@ def make_count_figure(region, regency, year_slider):
         bargroupgap=0.1  # gap between bars of the same location coordinate.
     )
     return fig
-
-# # Main graph -> individual graph
-# @app.callback(Output("individual_graph", "figure"), [Input("main_graph", "hoverData")])
-# def make_individual_figure(main_graph_hover):
-
-#     layout_individual = copy.deepcopy(layout)
-
-#     if main_graph_hover is None:
-#         main_graph_hover = {
-#             "points": [
-#                 {"curveNumber": 4, "pointNumber": 569, "customdata": 31101173130000}
-#             ]
-#         }
-
-#     chosen = [point["customdata"] for point in main_graph_hover["points"]]
-#     index, gas, oil, water = produce_individual(chosen[0])
-
-#     if index is None:
-#         annotation = dict(
-#             text="No data available",
-#             x=0.5,
-#             y=0.5,
-#             align="center",
-#             showarrow=False,
-#             xref="paper",
-#             yref="paper",
-#         )
-#         layout_individual["annotations"] = [annotation]
-#         data = []
-#     else:
-#         data = [
-#             dict(
-#                 type="scatter",
-#                 mode="lines+markers",
-#                 name="Gas Produced (mcf)",
-#                 x=index,
-#                 y=gas,
-#                 line=dict(shape="spline", smoothing=2, width=1, color="#fac1b7"),
-#                 marker=dict(symbol="diamond-open"),
-#             ),
-#             dict(
-#                 type="scatter",
-#                 mode="lines+markers",
-#                 name="Oil Produced (bbl)",
-#                 x=index,
-#                 y=oil,
-#                 line=dict(shape="spline", smoothing=2, width=1, color="#a9bb95"),
-#                 marker=dict(symbol="diamond-open"),
-#             ),
-#             dict(
-#                 type="scatter",
-#                 mode="lines+markers",
-#                 name="Water Produced (bbl)",
-#                 x=index,
-#                 y=water,
-#                 line=dict(shape="spline", smoothing=2, width=1, color="#92d8d8"),
-#                 marker=dict(symbol="diamond-open"),
-#             ),
-#         ]
-#         layout_individual["title"] = dataset[chosen[0]]["Well_Name"]
-
-#     figure = dict(data=data, layout=layout_individual)
-#     return figure
-
-
-# # Selectors, main graph -> aggregate graph
-# @app.callback(
-#     Output("aggregate_graph", "figure"),
-#     [
-#         Input("year_slider", "value"),
-#         # Input("main_graph", "hoverData"),
-#     ],
-# )
-# def make_aggregate_figure(year_slider): #, main_graph_hover , well_statuses, regency_selector,
-
-#     layout_aggregate = copy.deepcopy(layout)
-
-#     if main_graph_hover is None:
-#         main_graph_hover = {
-#             "points": [
-#                 {"curveNumber": 4, "pointNumber": 569, "customdata": 31101173130000}
-#             ]
-#         }
-
-#     chosen = [point["customdata"] for point in main_graph_hover["points"]]
-#     well_type = dataset[chosen[0]]["Well_Type"]
-#     dff = filter_dataframe(df, well_statuses, regency_selector, year_slider)
-
-#     selected = dff[dff["Well_Type"] == well_type]["API_WellNo"].values
-#     index, gas, oil, water = produce_aggregate(selected, year_slider)
-
-#     data = [
-#         dict(
-#             type="scatter",
-#             mode="lines",
-#             name="Gas Produced (mcf)",
-#             x=index,
-#             y=gas,
-#             line=dict(shape="spline", smoothing="2", color="#F9ADA0"),
-#         ),
-#         dict(
-#             type="scatter",
-#             mode="lines",
-#             name="Oil Produced (bbl)",
-#             x=index,
-#             y=oil,
-#             line=dict(shape="spline", smoothing="2", color="#849E68"),
-#         ),
-#         dict(
-#             type="scatter",
-#             mode="lines",
-#             name="Water Produced (bbl)",
-#             x=index,
-#             y=water,
-#             line=dict(shape="spline", smoothing="2", color="#59C3C3"),
-#         ),
-#     ]
-#     layout_aggregate["title"] = "Aggregate: " + WELL_TYPES[well_type]
-
-#     figure = dict(data=data, layout=layout_aggregate)
-#     return figure
-
-
-# # Selectors, main graph -> pie graph
-# @app.callback(
-#     Output("pie_graph", "figure"),
-#     [
-#         # Input("well_statuses", "value"),
-#         # Input("regency_selector", "value"),
-#         Input("year_slider", "value"),
-#     ],
-# )
-# def make_pie_figure(well_statuses, regency_selector, year_slider):
-
-#     layout_pie = copy.deepcopy(layout)
-
-#     dff = filter_dataframe(df, well_statuses, regency_selector, year_slider)
-
-#     selected = dff["API_WellNo"].values
-#     index, gas, oil, water = produce_aggregate(selected, year_slider)
-
-#     aggregate = dff.groupby(["Well_Type"]).count()
-
-#     data = [
-#         dict(
-#             type="pie",
-#             labels=["Gas", "Oil", "Water"],
-#             values=[sum(gas), sum(oil), sum(water)],
-#             name="Production Breakdown",
-#             text=[
-#                 "Total Gas Produced (mcf)",
-#                 "Total Oil Produced (bbl)",
-#                 "Total Water Produced (bbl)",
-#             ],
-#             hoverinfo="text+value+percent",
-#             textinfo="label+percent+name",
-#             hole=0.5,
-#             marker=dict(colors=["#fac1b7", "#a9bb95", "#92d8d8"]),
-#             domain={"x": [0, 0.45], "y": [0.2, 0.8]},
-#         ),
-#         dict(
-#             type="pie",
-#             labels=[WELL_TYPES[i] for i in aggregate.index],
-#             values=aggregate["API_WellNo"],
-#             name="Well Type Breakdown",
-#             hoverinfo="label+text+value+percent",
-#             textinfo="label+percent+name",
-#             hole=0.5,
-#             marker=dict(colors=[WELL_COLORS[i] for i in aggregate.index]),
-#             domain={"x": [0.55, 1], "y": [0.2, 0.8]},
-#         ),
-#     ]
-#     layout_pie["title"] = "Production Summary: {} to {}".format(
-#         year_slider[0], year_slider[1]
-#     )
-#     layout_pie["font"] = dict(color="#777777")
-#     layout_pie["legend"] = dict(
-#         font=dict(color="#CCCCCC", size="10"), orientation="h", bgcolor="rgba(0,0,0,0)"
-#     )
-
-#     figure = dict(data=data, layout=layout_pie)
-#     return figure
-
-
-    # layout_count = copy.deepcopy(layout)
-
-    # dff = filter_dataframe(df, well_statuses, regency_selector, [1960, 2017])
-    # g = dff[["API_WellNo", "Date_Well_Completed"]]
-    # g.index = g["Date_Well_Completed"]
-    # g = g.resample("A").count()
-
-    # colors = []
-    # for i in range(1960, 2018):
-    #     if i >= int(year_slider[0]) and i < int(year_slider[1]):
-    #         colors.append("rgb(123, 199, 255)")
-    #     else:
-    #         colors.append("rgba(123, 199, 255, 0.2)")
-
-    # data = [
-    #     dict(
-    #         type="scatter",
-    #         mode="markers",
-    #         x=g.index,
-    #         y=g["API_WellNo"] / 2,
-    #         name="All Wells",
-    #         opacity=0,
-    #         hoverinfo="skip",
-    #     ),
-    #     dict(
-    #         type="bar",
-    #         x=g.index,
-    #         y=g["API_WellNo"],
-    #         name="All Wells",
-    #         marker=dict(color=colors),
-    #     ),
-    # ]
-
-    # layout_count["title"] = "Completed Wells/Year"
-    # layout_count["dragmode"] = "select"
-    # layout_count["showlegend"] = False
-    # layout_count["autosize"] = True
-
-    # figure = dict(data=data, layout=layout_count)
-    # return figure
-
 
 # Main
 if __name__ == "__main__":
