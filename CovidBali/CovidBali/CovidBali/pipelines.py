@@ -26,8 +26,8 @@ class JsonPipeline(object):
     def process_item(self, item, spider):
         line = json.dumps(
             dict(item),
-            sort_keys=True,
-            indent=4,
+            # sort_keys=True,
+            # indent=4,
             separators=(',', ': ')
         ) + ",\n"
 

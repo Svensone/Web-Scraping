@@ -25,6 +25,20 @@ import controls
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = PATH.joinpath("data").resolve()
 
+# Data paths
+#-----------------------------
+
+data_covid_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\data_process\dailyCasesTest.csv'
+data_covid_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv'
+data_covid_germany = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'
+geojson_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson'
+geojson_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson'
+geojson_germany = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\geojson_ger.json'
+
+
+# Initialize App
+#-----------------------------
+
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}]
 )
@@ -70,16 +84,6 @@ layout = dict(
         zoom=7,
     ),
 )
-
-# Data paths
-#-----------------------------
-
-data_covid_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\data_process\dailyCasesTest.csv'
-data_covid_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv'
-data_covid_germany = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'
-geojson_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson'
-gejson_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson'
-geojson_germany = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\geojson_ger.json'
 # Create app layout
 #-----------------------------
 app.layout = html.Div(
@@ -98,7 +102,7 @@ app.layout = html.Div(
                             src=app.get_asset_url("Barong-Mask.png"),
                             id="plotly-image",
                             style={
-                                "height": "60px",
+                                "height": "80px",
                                 "width": "auto",},
                         )
                     ],
@@ -138,7 +142,7 @@ app.layout = html.Div(
                 html.Div(
                     [
                         html.P(
-                            " Which Region:",
+                            "Region:",
                             className='control_label'
                         ),
                         dcc.RadioItems(
@@ -151,7 +155,7 @@ app.layout = html.Div(
                             value="bali",
                             className="dcc_control",
                         ),
-                        html.P("Filter by Regency:",
+                        html.P("Regency/County:",
                                className="control_label"),
                         dcc.Dropdown(
                             id="regency_selector",
@@ -160,21 +164,8 @@ app.layout = html.Div(
                             value='',
                             className="dcc_control",
                         ),
-                        # dcc.RadioItems(
-                        #     id="well_type_selector",
-                        #     options=[
-                        #         {"label": "All ", "value": "all"},
-                        #         {"label": "Jembrana", "value": "productive"},
-                        #         {"label": "Denpasar ", "value": "custom"},
-                        #     ],
-                        #     value="productive",
-                        #     labelStyle={"display": "inline-block"},
-                        #     className="dcc_control",
-                        # ),
-
                         html.P('NOT YET !!', className="control_label",),
-                        html.P(
-                            "Filter by date (or select range in histogram):",
+                        html.P("Date or Timerange:",
                             className="control_label",
                         ),
                         dcc.RangeSlider(
@@ -184,14 +175,7 @@ app.layout = html.Div(
                             value=[1990, 2010],
                             className="dcc_control",
                         ),
-                        dcc.Checklist(
-                            id="lock_selector",
-                            options=[
-                                {"label": "Lock camera", "value": "locked"}],
-                            className="dcc_control",
-                            value=[],
-                        ),
-                        html.P("Filter by Cases:", className="control_label"),
+                        html.P("Cases:", className="control_label"),
                         dcc.RadioItems(
                             id="well_status_selector",
                             options=[
@@ -217,7 +201,7 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Div(
-                                    [html.P(id="cases_mortality"),
+                                    [html.H6(id="cases_mortality", style={'text-align': 'center'}), html.P("Cases per 100k"),
                                     ],
                                     id="wells",
                                     className="mini_container",
@@ -233,7 +217,7 @@ app.layout = html.Div(
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="waterText"), html.P("Cases growth-rate")],
+                                    [html.H6(id="growth_rate"), html.P("growth-rate")],
                                     id="water",
                                     className="mini_container",
                                 ),
@@ -249,7 +233,7 @@ app.layout = html.Div(
                         ),
                     ],
                     id="right-column",
-                    className="eight columns",
+                    className="ten columns",
                 ),
             ],
             className="row flex-display",
@@ -271,8 +255,10 @@ app.layout = html.Div(
                         html.Div(
                             html.Img(
                                 src=app.get_asset_url('pic1.jpg'),
-                                style={'max-width': '100%',
-                                       'max-height': '100%',
+                                style={
+                                    'max-width': '100%',
+                                    'max-height': '100%',
+                                    #    'background-size': 'cover',
                                        }))
                     ],
                     className="pretty_container five columns",
@@ -432,11 +418,16 @@ app.clientside_callback(
 #     return [min(nums) + 1960, max(nums) + 1961]
 
 
-# Selectors -> regenc text
+# Selectors -> regency text
 @app.callback(
-    Output("cases_mortality", "children"),
+    [Output("cases_mortality", "children"),
+    Output('cases_per_100k', 'children'),
+    Output('deaths_per_100k', 'children'),
+    Output('growth_rate', 'children')],
+
     [Input('regency_selector', 'value'),
-    Input('region_selector', 'value')],)
+    Input('region_selector', 'value')],
+    )
     
 def update_cases_mortality(regency, region):
     if region == 'bali':
@@ -452,19 +443,9 @@ def update_cases_mortality(regency, region):
     
     # select the latest case fatality ratio (later with selected Date)
     cfr = selected_region['CFR'].iloc[-1].round(2)
-    return 'mortality rate \n {} : {}'.format(regency, cfr)
-
-
-# @app.callback(
-#     [
-#         Output("cases_per_100k", "children"),
-#         Output("deaths_per_100k", "children"),
-#         Output("waterText", "children"),],
-#     [Input("aggregate_data", "data")],
-# )
-# def update_text(data):
-#     return data[0] + " mcf", data[1] + " bbl", data[2] + " bbl"
-
+    cp100k = selected_region['cases_per_100k'].iloc[-1].round(2)
+    dp100k = selected_region['deaths_per_100k'].iloc[-1].round(2)
+    return '{}'.format(cfr), '{}'.format(cp100k), '{}'.format(dp100k), 'not yet'
 
 # Selectors -> main graph
 @app.callback(
@@ -482,6 +463,7 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
     print(year_value)
     print(main_graph_layout)
     PATH = pathlib.Path(__file__).parent
+
     # zoom, center = controls.zoom_center(lons=[5, 10, 25, 30, 35, 40, 45, 50, 100, 115], lats=[0, 15, 20, 35, 45, 50])
     if region == 'bali':
         df = pd.read_excel(
@@ -550,24 +532,22 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
 )
 def make_count_figure(region, regency, year_slider):
 
-    print('region {} regency {} year_slider {}'.format(region, regency, year_slider))
-    data_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\covid_19_indonesia_time_series_all.csv'
-    data_bali_regency = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\regencyCasesBali.xlsx'
     if region == 'indo':
-        df = pd.read_csv(data_indo)
+        df = pd.read_csv(data_covid_indo)
         region_selected = 'Indonesia'
 
     elif region == 'bali' and regency == '':
-        df = pd.read_csv(data_indo)
+        df = pd.read_csv(data_covid_indo)
+        
         region_selected = 'Bali' 
     else:
-        df = pd.read_excel(data_bali_regency)
+        df = pd.read_excel(data_covid_bali)
         region_selected = regency
+        df['Location'] = df['Name_EN']
 
-    # df_indo = pd.read_csv(data_path)
     df = df[df['Location'].str.match(region_selected)]
 
-    df_test = df.tail(50)
+    df_test = df.tail(100)
     days = df_test.Date.to_list()
 
     fig = go.Figure()

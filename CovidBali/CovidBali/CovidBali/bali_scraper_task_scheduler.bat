@@ -1,3 +1,2 @@
-
-
-C:\ProgramData\Anaconda3\envs\scrapy\Scripts\activate.bat && C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\CovidBali\CovidBali\spiders\dailyNewBaliCases.py
+"C:\ProgramData\Anaconda3\Scripts\activate.bat" "C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\CovidBali\CovidBali\spiders\dailyNewBaliCases.py"
+pause
