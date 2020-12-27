@@ -455,10 +455,9 @@ def update_cases_mortality(regency, region):
         Input('region_selector', 'value')
     ],
     [
-        State("lock_selector", "value"),
         State("main_graph", "relayoutData")],
 )
-def make_main_figure(year_value, region, selector,  main_graph_layout):
+def make_main_figure(year_value, region, main_graph_layout):
     print(region)
     print(year_value)
     print(main_graph_layout)
@@ -508,7 +507,7 @@ def make_main_figure(year_value, region, selector,  main_graph_layout):
     display_fig = go.Figure(fig)
 
     # relayoutData is None by default, and {'autosize': True} without relayout action
-    if main_graph_layout is not None and selector is not None and "locked" in selector:
+    if main_graph_layout is not None:
         if "mapbox.center" in main_graph_layout.keys():
             lon = float(main_graph_layout["mapbox.center"]["lon"])
             lat = float(main_graph_layout["mapbox.center"]["lat"])
@@ -538,8 +537,8 @@ def make_count_figure(region, regency, year_slider):
 
     elif region == 'bali' and regency == '':
         df = pd.read_csv(data_covid_indo)
-        
-        region_selected = 'Bali' 
+        region_selected = 'Bali'
+
     else:
         df = pd.read_excel(data_covid_bali)
         region_selected = regency
@@ -552,13 +551,12 @@ def make_count_figure(region, regency, year_slider):
 
     fig = go.Figure()
 
-    selected_list = ['Total Cases', 'Total Deaths',
-                    #  'New Recovered', 'New Active Cases', 
+    selected_cases = ['Total Cases',
                      ]
     colors = px.colors.sequential.Blues
     count = 0
 
-    for selected in selected_list:
+    for selected in selected_cases:
         count += 2
         fig.add_traces(
             go.Bar(
@@ -568,13 +566,30 @@ def make_count_figure(region, regency, year_slider):
                 marker_color=colors[count]
             )
         )
+    # test plots for new cases and 
+    selected_new = [
+        'Total Deaths', 
+        # 'New Cases', 
+        # 'cases_per_100k'
+    ]
+    for selected in selected_new:
+        fig.add_traces(
+            go.Scatter(
+                x=df["Date"], 
+                y=df[selected],
+                # mode='lines',
+                name=selected,
+                line=dict(color=colors[3], width=4)
+                )
+            )
+
     fig.update_layout(
-        title='Daily Cases in Bali',
+        title='Daily Cases {}'.format(region_selected),
         xaxis_tickfont_size=14,
         yaxis=dict(
             title='oh',
             titlefont_size=16,
-            tickfont_size=14,
+            tickfont_size=10,
         ),
         plot_bgcolor=colors[0],
         paper_bgcolor=colors[0],
