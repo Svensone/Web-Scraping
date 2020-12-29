@@ -27,26 +27,25 @@ PATH = pathlib.Path(__file__).parent
 DATA_PATH = PATH.joinpath("data").resolve()
 
 # Data paths
-#-----------------------------
+# -----------------------------
 
 data_covid_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\data_process\bali_regency_data.csv'
 data_covid_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\data_process\indo_province_data.csv'
 data_covid_germany = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\county_covid_BW.csv'
-geojson_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\bali_geojson_id.geojson'
+geojson_bali = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\new_bali_geojson_id.geojson'
 geojson_indo = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\indo_level1_id.geojson'
 geojson_germany = r'C:\Users\ansve\Coding\Projects-WebScraping\CovidBali\testingDash\plotly apps-dash-oil-and-gas\data\geojson_ger.json'
 
 
 # Initialize App
-#-----------------------------
-
+# -----------------------------
 app = dash.Dash(
     __name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}]
 )
 server = app.server
 
 # Create controls
-#---------------------
+# ---------------------
 
 # own controls for Bali_Covid Dash-App
 regency_options = [
@@ -54,7 +53,7 @@ regency_options = [
 ]
 
 # Create global chart template
-#-----------------------------
+# -----------------------------
 mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNrOWJqb2F4djBnMjEzbG50amg0dnJieG4ifQ.Zme1-Uzoi75IaFbieBDl3A"
 
 layout = dict(
@@ -74,10 +73,11 @@ layout = dict(
     ),
 )
 # Create app layout
-#-----------------------------
+# -----------------------------
 app.layout = html.Div(
     [
         dcc.Store(id="aggregate_data"),
+
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output-clientside"),
 
@@ -92,7 +92,7 @@ app.layout = html.Div(
                             id="plotly-image",
                             style={
                                 "height": "80px",
-                                "width": "auto",},
+                                "width": "auto", },
                         )
                     ],
                     className="one-third column",
@@ -101,8 +101,10 @@ app.layout = html.Div(
                     [
                         html.Div(
                             [
-                                html.H3("Covid Cases", style={"margin-bottom": "0px"},),
-                                html.H5("Cases in Bali per Regency", style={"margin-top": "0px"}),
+                                html.H3("Covid Cases", style={
+                                        "margin-bottom": "0px"},),
+                                html.H5("Cases in Bali per Regency",
+                                        style={"margin-top": "0px"}),
                             ]
                         )
                     ],
@@ -124,6 +126,37 @@ app.layout = html.Div(
             className="row flex-display",
             style={"margin-bottom": "10px"},
         ),
+        html.Div([
+            html.Div([
+                html.P("Region:", className='control_label'),
+                dcc.RadioItems(
+                    id='region_sel',
+                    options=[
+                        {'label': 'Indonesia', 'value': 'indo'},
+                        {'label': 'Bali', 'value': 'bali'},
+                    ],
+                    labelStyle={"display": "inline-block"},
+                    value="bali",
+                    className="dcc_control",
+                ),
+                html.P("Regency/County:",
+                       className="control_label"),
+                dcc.Dropdown(
+                    id="regency_sel",
+                    options=regency_options,  # well_type_options,
+                    multi=False,
+                    value='',
+                    className="dcc_control",
+                ),
+            ],
+                className='pretty_container thirteen columns'
+            )
+        ],
+            id='new_controls',
+            className="row flex-display",
+        ),
+
+
         html.Div(
             [
                 # Controls Panel Component
@@ -150,13 +183,13 @@ app.layout = html.Div(
                             id="regency_selector",
                             options=regency_options,  # well_type_options,
                             multi=False,
-                            value= '',
+                            value='',
                             className="dcc_control",
                         ),
                         html.P('NOT YET !!', className="control_label",),
                         html.P("Date or Timerange:",
-                            className="control_label",
-                        ),
+                               className="control_label",
+                               ),
                         dcc.RangeSlider(
                             id="year_slider",
                             min=1960,
@@ -191,22 +224,25 @@ app.layout = html.Div(
                             [
                                 html.Div(
                                     [html.H6(id="cases_mortality", style={'text-align': 'center'}), html.P("Case Fatality Rate"),
-                                    ],
+                                     ],
                                     id="wells",
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="cases_per_100k"), html.P("Cases per 100k")],
+                                    [html.H6(id="cases_per_100k"),
+                                     html.P("Cases per 100k")],
                                     id="gas",
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="deaths_per_100k"), html.P("Deaths per 100k")],
+                                    [html.H6(id="deaths_per_100k"),
+                                     html.P("Deaths per 100k")],
                                     id="oil",
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="growth_rate"), html.P("Growth-rate")],
+                                    [html.H6(id="growth_rate"),
+                                     html.P("Growth-rate")],
                                     id="water",
                                     className="mini_container",
                                 ),
@@ -248,26 +284,13 @@ app.layout = html.Div(
                                     'max-width': '100%',
                                     'max-height': '100%',
                                     #    'background-size': 'cover',
-                                       }))
+                                }))
                     ],
                     className="pretty_container five columns",
                 ),
             ],
             className="row flex-display",
         ),
-        # html.Div(
-        #     [
-        #         html.Div(
-        #             [dcc.Graph(id="pie_graph")],
-        #             className="pretty_container seven columns",
-        #         ),
-        #         html.Div(
-        #             [dcc.Graph(id="aggregate_graph")],
-        #             className="pretty_container five columns",
-        #         ),
-        #     ],
-        #     className="row flex-display",
-        # ),
     ],
     id="mainContainer",
     style={"display": "flex", "flex-direction": "column"},
@@ -281,16 +304,17 @@ app.clientside_callback(
 )
 
 # Slectore -> Mini-Container Numbers
+
+
 @app.callback(
     [Output("cases_mortality", "children"),
-    Output('cases_per_100k', 'children'),
-    Output('deaths_per_100k', 'children'),
-    Output('growth_rate', 'children')],
+     Output('cases_per_100k', 'children'),
+     Output('deaths_per_100k', 'children'),
+     Output('growth_rate', 'children')],
 
     [Input('regency_selector', 'value'),
-    Input('region_selector', 'value')],
-    )
-    
+     Input('region_selector', 'value')],
+)
 def update_cases_mortality(regency, region):
     if region == 'indo':
         df = pd.read_csv(data_covid_indo)
@@ -305,13 +329,15 @@ def update_cases_mortality(regency, region):
         selected_region = df[df['Name_EN'].str.match(regency)]
     # print(regency)
     # print(selected_region.head())
-    cfr = selected_region['CFR'].iloc[-1]#.round(2)
-    cp100k = selected_region['total_cases_per_100k'].iloc[-2]#.round(2)
-    dp100k = selected_region['total_deaths_per_100k'].iloc[-2] #.round(2)
+    cfr = selected_region['CFR'].iloc[-1]  # .round(2)
+    cp100k = selected_region['total_cases_per_100k'].iloc[-2]  # .round(2)
+    dp100k = selected_region['total_deaths_per_100k'].iloc[-2]  # .round(2)
 
     return '{}'.format(cfr), '{}'.format(str(round(cp100k, 2))), '{}'.format(str(round(dp100k, 2))), 'not yet'
 
 # Selectors -> main graph
+
+
 @app.callback(
     Output("main_graph", "figure"),
     [Input("year_slider", "value"), Input('region_selector', 'value')],
@@ -347,9 +373,9 @@ def make_main_figure(year_value, region, main_graph_layout):
         locations='id',
         color='total_cases_per_100k',
         mapbox_style='carto-positron',
-        # hover_name='Regency',
-        # hover_data=[],
-        # animation_frame="Date",
+        hover_name='Name_EN',
+        hover_data=['cases7_per_100k', 'deaths7_per_100k'],
+        animation_frame="Date",
         color_continuous_scale='blues',
         zoom=zoom,
         center=center,
@@ -377,7 +403,8 @@ def make_main_figure(year_value, region, main_graph_layout):
 # Selectors -> count graph
 @app.callback(
     Output("count_graph", "figure"),
-    [Input('region_selector', 'value'), Input('regency_selector', 'value'), Input("year_slider", "value")],
+    [Input('region_selector', 'value'), Input(
+        'regency_selector', 'value'), Input("year_slider", "value")],
 )
 def make_count_figure(region, regency, year_slider):
 
@@ -402,7 +429,7 @@ def make_count_figure(region, regency, year_slider):
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
     selected_cases = ['new_cases', 'new_recovered', 'cases7'
-                     ]
+                      ]
     colors = px.colors.sequential.Blues
     count = 0
     for selected in selected_cases:
@@ -417,21 +444,21 @@ def make_count_figure(region, regency, year_slider):
             secondary_y=False,
         )
     # test plots for new cases and
-    count=0
-    selected_new = ['total_deaths_per_100k', 'CFR',]
+    count = 0
+    selected_new = ['total_deaths_per_100k', 'CFR', ]
     for selected in selected_new:
-        count +=2
+        count += 2
         fig.add_trace(
             go.Scatter(
-                x=days, 
+                x=days,
                 y=df_test[selected],
                 # mode='lines',
                 name=selected,
                 line=dict(color=colors[count], width=2),
-                ),
+            ),
             secondary_y=True
 
-            )
+        )
 
     fig.update_layout(
         title='Daily Cases in {}'.format(region_selected),
@@ -445,21 +472,21 @@ def make_count_figure(region, regency, year_slider):
             yanchor="top",
             y=0.99,
             xanchor="left",
-            x=0.01
-            # bgcolor=None,
-            # bordercolor='white'
+            x=0.01,
+            bgcolor='white',
+            bordercolor='white',
         ),
         barmode='group',
         bargap=0.15,  # gap between bars of adjacent location coordinates.
         bargroupgap=0.1  # gap between bars of the same location coordinate.
     )
-    
+
     # Set x-axis title
     fig.update_xaxes(title_text="Date")
     fig.update_yaxes(tickfont_size=6, secondary_y=True)
 
-
     return fig
+
 
 # Main
 if __name__ == "__main__":
