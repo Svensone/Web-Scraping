@@ -101,3 +101,6 @@ pyvenv.cfg
 .vscode/
 
 data/points.pkl
+
+# Tokens, Passwords etc
+KEYS/

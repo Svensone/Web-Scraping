@@ -11,6 +11,7 @@ import json
 
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 from dash.dependencies import Input, Output, State, ClientsideFunction
 import dash_core_components as dcc
@@ -50,18 +51,6 @@ server = app.server
 # own controls for Bali_Covid Dash-App
 regency_options = [
     {'label': str(REGENCIES[x]), 'value': str(REGENCIES[x])} for x in REGENCIES
-]
-# from template (old)
-county_options = [
-    {"label": str(COUNTIES[county]), "value": str(county)} for county in COUNTIES
-]
-well_status_options = [
-    {"label": str(WELL_STATUSES[well_status]), "value": str(well_status)}
-    for well_status in WELL_STATUSES
-]
-well_type_options = [
-    {"label": str(WELL_TYPES[well_type]), "value": str(well_type)}
-    for well_type in WELL_TYPES
 ]
 
 # Create global chart template
@@ -161,7 +150,7 @@ app.layout = html.Div(
                             id="regency_selector",
                             options=regency_options,  # well_type_options,
                             multi=False,
-                            value='',
+                            value= '',
                             className="dcc_control",
                         ),
                         html.P('NOT YET !!', className="control_label",),
@@ -201,7 +190,7 @@ app.layout = html.Div(
                         html.Div(
                             [
                                 html.Div(
-                                    [html.H6(id="cases_mortality", style={'text-align': 'center'}), html.P("Cases per 100k"),
+                                    [html.H6(id="cases_mortality", style={'text-align': 'center'}), html.P("Case Fatality Rate"),
                                     ],
                                     id="wells",
                                     className="mini_container",
@@ -217,7 +206,7 @@ app.layout = html.Div(
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.H6(id="growth_rate"), html.P("growth-rate")],
+                                    [html.H6(id="growth_rate"), html.P("Growth-rate")],
                                     id="water",
                                     className="mini_container",
                                 ),
@@ -284,89 +273,6 @@ app.layout = html.Div(
     style={"display": "flex", "flex-direction": "column"},
 )
 
-
-# Helper functions
-def human_format(num):
-    if num == 0:
-        return "0"
-
-    magnitude = int(math.log(num, 1000))
-    mantissa = str(int(num / (1000 ** magnitude)))
-    return mantissa + ["", "K", "M", "G", "T", "P"][magnitude]
-
-
-def filter_dataframe(df, well_statuses, regency_selector, year_slider):
-    dff = df[
-        df["Well_Status"].isin(well_statuses)
-        & df["Well_Type"].isin(regency_selector)
-        & (df["Date_Well_Completed"] > dt.datetime(year_slider[0], 1, 1))
-        & (df["Date_Well_Completed"] < dt.datetime(year_slider[1], 1, 1))
-    ]
-    return dff
-
-
-def produce_individual(api_well_num):
-    try:
-        points[api_well_num]
-    except:
-        return None, None, None, None
-
-    index = list(
-        range(min(points[api_well_num].keys()),
-              max(points[api_well_num].keys()) + 1)
-    )
-    gas = []
-    oil = []
-    water = []
-
-    for year in index:
-        try:
-            gas.append(points[api_well_num][year]["Gas Produced, MCF"])
-        except:
-            gas.append(0)
-        try:
-            oil.append(points[api_well_num][year]["Oil Produced, bbl"])
-        except:
-            oil.append(0)
-        try:
-            water.append(points[api_well_num][year]["Water Produced, bbl"])
-        except:
-            water.append(0)
-
-    return index, gas, oil, water
-
-
-def produce_aggregate(selected, year_slider):
-
-    index = list(range(max(year_slider[0], 1985), 2016))
-    gas = []
-    oil = []
-    water = []
-
-    for year in index:
-        count_gas = 0
-        count_oil = 0
-        count_water = 0
-        for api_well_num in selected:
-            try:
-                count_gas += points[api_well_num][year]["Gas Produced, MCF"]
-            except:
-                pass
-            try:
-                count_oil += points[api_well_num][year]["Oil Produced, bbl"]
-            except:
-                pass
-            try:
-                count_water += points[api_well_num][year]["Water Produced, bbl"]
-            except:
-                pass
-        gas.append(count_gas)
-        oil.append(count_oil)
-        water.append(count_water)
-
-    return index, gas, oil, water
-
-
 # Create callbacks
 app.clientside_callback(
     ClientsideFunction(namespace="clientside", function_name="resize"),
@@ -388,29 +294,28 @@ app.clientside_callback(
 def update_cases_mortality(regency, region):
     if region == 'indo':
         df = pd.read_csv(data_covid_indo)
-        selected_region = df[df['Name_EN'].str.match('Indonesia')]
-    elif region == 'bali' and regency is None:
+        selected_region = df[df['Name_EN'].str.match('indonesia')]
+
+    elif region == 'bali' and regency == '':
         df = pd.read_csv(data_covid_indo)
-        selected_region = df[df['Name_EN'].str.match('Bali')]
+        selected_region = df[df['Name_EN'].str.match('bali')]
+
     else:
         df = pd.read_csv(data_covid_bali)
         selected_region = df[df['Name_EN'].str.match(regency)]
-    
-    cfr = selected_region['CFR'].iloc[-1].round(2)
+    # print(regency)
+    # print(selected_region.head())
+    cfr = selected_region['CFR'].iloc[-1]#.round(2)
     cp100k = selected_region['total_cases_per_100k'].iloc[-2]#.round(2)
-    
     dp100k = selected_region['total_deaths_per_100k'].iloc[-2] #.round(2)
+
     return '{}'.format(cfr), '{}'.format(str(round(cp100k, 2))), '{}'.format(str(round(dp100k, 2))), 'not yet'
 
 # Selectors -> main graph
 @app.callback(
     Output("main_graph", "figure"),
-    [
-        Input("year_slider", "value"),
-        Input('region_selector', 'value')
-    ],
-    [
-        State("main_graph", "relayoutData")],
+    [Input("year_slider", "value"), Input('region_selector', 'value')],
+    [State("main_graph", "relayoutData")],
 )
 def make_main_figure(year_value, region, main_graph_layout):
     # print(region)
@@ -418,17 +323,17 @@ def make_main_figure(year_value, region, main_graph_layout):
     # print(main_graph_layout)
     PATH = pathlib.Path(__file__).parent
 
-    # zoom, center = controls.zoom_center(lons=[5, 10, 25, 30, 35, 40, 45, 50, 100, 115], lats=[0, 15, 20, 35, 45, 50])
     if region == 'bali':
-        df = pd.read_csv(data_covid_indo)
-        geojson = json.load(open(geojson_indo))
+        df = pd.read_csv(data_covid_bali)
+        geojson = json.load(open(geojson_bali))
         center = {"lat": -8.5002, "lon": 115.0129}
         zoom = 7
+
     elif region == 'indo':
         df = pd.read_csv(data_covid_indo)
         geojson = json.load(open(geojson_indo))
-        center = {'lat': 0, 'lon': 107}
-        zoom = 2
+        center = {'lat': 0, 'lon': 109}
+        zoom = 3
 
     else:
         df = pd.read_csv(data_covid_germany)
@@ -472,11 +377,7 @@ def make_main_figure(year_value, region, main_graph_layout):
 # Selectors -> count graph
 @app.callback(
     Output("count_graph", "figure"),
-    [
-        Input('region_selector', 'value'),
-        Input('regency_selector', 'value'),
-        Input("year_slider", "value"),
-    ],
+    [Input('region_selector', 'value'), Input('regency_selector', 'value'), Input("year_slider", "value")],
 )
 def make_count_figure(region, regency, year_slider):
 
@@ -497,58 +398,67 @@ def make_count_figure(region, regency, year_slider):
     df_test = df.tail(100)
     days = df_test.Date.to_list()
 
-    fig = go.Figure()
+    # fig = go.Figure()
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
 
-    selected_cases = ['total_cases',
+    selected_cases = ['new_cases', 'new_recovered', 'cases7'
                      ]
     colors = px.colors.sequential.Blues
     count = 0
-
     for selected in selected_cases:
         count += 2
-        fig.add_traces(
+        fig.add_trace(
             go.Bar(
                 x=days,
                 y=df_test[selected],
                 name=selected,
-                marker_color=colors[count]
-            )
+                marker_color=colors[count],
+            ),
+            secondary_y=False,
         )
-    # test plots for new cases and 
-    selected_new = [
-        'total_cases_per_100k'
-    ]
+    # test plots for new cases and
+    count=0
+    selected_new = ['total_deaths_per_100k', 'CFR',]
     for selected in selected_new:
-        fig.add_traces(
+        count +=2
+        fig.add_trace(
             go.Scatter(
                 x=days, 
                 y=df_test[selected],
                 # mode='lines',
                 name=selected,
-                line=dict(color=colors[3], width=4)
-                )
+                line=dict(color=colors[count], width=2),
+                ),
+            secondary_y=True
+
             )
 
     fig.update_layout(
-        title='Daily Cases {}'.format(region_selected),
-        xaxis_tickfont_size=14,
+        title='Daily Cases in {}'.format(region_selected),
+        xaxis_tickfont_size=6,
         yaxis=dict(
-            title='oh',
-            titlefont_size=16,
-            tickfont_size=10,
+            tickfont_size=6,
         ),
         plot_bgcolor=colors[0],
         paper_bgcolor=colors[0],
         legend=dict(
-            x=0,
-            y=1.0,
-            bgcolor=colors[0],
-            bordercolor='white'
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01
+            # bgcolor=None,
+            # bordercolor='white'
         ),
         barmode='group',
         bargap=0.15,  # gap between bars of adjacent location coordinates.
         bargroupgap=0.1  # gap between bars of the same location coordinate.
     )
+    
+    # Set x-axis title
+    fig.update_xaxes(title_text="Date")
+    fig.update_yaxes(tickfont_size=6, secondary_y=True)
+
+
     return fig
 
 # Main
