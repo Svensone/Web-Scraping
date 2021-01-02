@@ -7,7 +7,6 @@ Dash App for Indo/Bali Covid Cases
 - deploy
 - visualize choropleth
 
-
 open localhost:8050
 
 2020-12-01 :
