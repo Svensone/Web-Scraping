@@ -29,5 +29,4 @@ class BaliSpider(scrapy.Spider):
             regencyData = row.css('td::text').getall()
             regencyData.append(update_date[-14:-2])
             item['data'].append(regencyData)
-
         return item
