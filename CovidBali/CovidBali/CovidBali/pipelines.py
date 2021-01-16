@@ -29,7 +29,7 @@ class JsonPipeline(object):
             # sort_keys=True,
             # indent=4,
             separators=(',', ': ')
-        ) + ",\n"
+        ) + "\n"
 
         self.file.write(line)
 
