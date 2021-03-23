@@ -12,8 +12,8 @@ class BaliSpider(scrapy.Spider):
 
     name = 'bali'
     start_urls =[
+        'https://infocorona.baliprov.go.id/API/pendataan/laporan-harian-02.php',
         "https://infocorona.baliprov.go.id/API/pendataan/laporan-harian-01.php",
-        'https://infocorona.baliprov.go.id/API/pendataan/laporan-harian-02.php'
         ]
 
     def parse(self, response):
